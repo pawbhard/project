@@ -1,11 +1,12 @@
 
-#include "server_databuffer.h"
+#include "server_header.h"
+connection* connection::cco = NULL;
 int main() {
 
-    connection conn = connection::get_instance() ;
+    connection *conn = connection::get_instance() ;
     std::thread con(run_connection,conn);
     databuf *d;
-    init_buffer(5,d);
+    init_buffer(5,&d);
     filldata(d);
     return 0;
 }

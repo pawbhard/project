@@ -35,14 +35,14 @@ int main(int argc, char *argv[])
     connect(sock, (struct sockaddr *) &address, sizeof(address));
     int rec;
     while(1) {
+        memset(ar,0,sizeof(ar));
         rec = recvfrom(sock, (void *) ar, sizeof(ar) ,0,NULL,NULL);
         if(rec > 0) {
             int i;
             for(int i = 0; i < 20; i++)
-                std::cout<<"Value "<<i<<" is "<<ar[i];
-            std::cout<<"\n";
+                std::cout<<"Value "<<i<<" is "<<ar[i]<<"\n";
         }
-        sleep(10);
+        //sleep(1);
     }
 /*    while (fgets(sendline,1000,stdin) != 0) {
         sendto(sock,sendline,strlen(sendline) ,0,

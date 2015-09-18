@@ -1,4 +1,4 @@
-#include "server_connection.h"
+#include "server_header.h"
 void connection::setnonblocking(int sock) {
     DEBUG("Setting nonblocking for socket %d",sock);
     int opts;
@@ -98,49 +98,49 @@ void connection::read_socks() {
     }
 }
 
-void run_connection(connection c) {
+void run_connection(connection *c) {
     int readsocks; //no of sockets ready for reading 
     timeval timeout;
 
     sockaddr_in server_address; //for bind
-    c.sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(c.sock < 0) {
+    c->sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(c->sock < 0) {
         ERROR("Not able to create socket");
         exit(EXIT_FAILURE);
     }
 
     //enable reuse
     int reuseaddr = 1;
-    setsockopt(c.sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
+    setsockopt(c->sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
 
     //set socket as non blocking 
-    c.setnonblocking(c.sock);
+    c->setnonblocking(c->sock);
 
     //binding
     memset(&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = SERVER_PORT;
-    if(bind(c.sock, (sockaddr *) &server_address, sizeof(server_address)) < 0) {
+    if(bind(c->sock, (sockaddr *) &server_address, sizeof(server_address)) < 0) {
         ERROR("Error in Binding");
-        close(c.sock);
+        close(c->sock);
         exit(EXIT_FAILURE);
     }
     
     //Setup queue
-    listen(c.sock,MAX_CLIENTS);
+    listen(c->sock,MAX_CLIENTS);
 
     //as we start with one socket init it as higsocket for select
-    c.highsock = c.sock;
-    memset((char *) &c.connectionlist, 0, sizeof(c.connectionlist));
+    c->highsock = c->sock;
+    memset((char *) &c->connectionlist, 0, sizeof(c->connectionlist));
 
     //Loop forever 
     while(1) {
-        c.buildselectlist();
+        c->buildselectlist();
         timeout.tv_sec = 2;
         timeout.tv_usec = 0;
         
-        readsocks = select(c.highsock+1, &c.socks, (fd_set *) 0, (fd_set *) 0,
+        readsocks = select(c->highsock+1, &c->socks, (fd_set *) 0, (fd_set *) 0,
                              &timeout);
 
         if(readsocks < 0) {
@@ -152,7 +152,7 @@ void run_connection(connection c) {
             //no new messages print .
             std::cout<<".";
         } else {
-            c.read_socks();
+            c->read_socks();
         }
     }
 }
@@ -163,9 +163,11 @@ int connection::get_number_of_clients() {
 std::set<int> connection::get_list() {
     std::set<int> clients;
     int list;
+    DEBUG("Getting list");
     for(list = 0; list < MAX_CLIENTS ; list++) {
-        if(connectionlist[list] != 0)
+        if(connectionlist[list] != 0) {
             clients.insert(connectionlist[list]);
+        }
     }
     return clients;
 }
