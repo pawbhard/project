@@ -1,10 +1,11 @@
 
-#include "server_connection.h"
-#include "socket_util.h"
-
+#include "server_databuffer.h"
 int main() {
 
     connection conn = connection::get_instance() ;
-    conn.run_connection();
+    std::thread con(run_connection,conn);
+    databuf *d;
+    init_buffer(5,d);
+    filldata(d);
     return 0;
 }

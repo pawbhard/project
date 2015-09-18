@@ -1,5 +1,4 @@
 #include "server_connection.h"
-#include "socket_util.h"
 void connection::setnonblocking(int sock) {
     DEBUG("Setting nonblocking for socket %d",sock);
     int opts;
@@ -99,49 +98,49 @@ void connection::read_socks() {
     }
 }
 
-void connection::run_connection() {
+void run_connection(connection c) {
     int readsocks; //no of sockets ready for reading 
     timeval timeout;
 
     sockaddr_in server_address; //for bind
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock < 0) {
+    c.sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(c.sock < 0) {
         ERROR("Not able to create socket");
         exit(EXIT_FAILURE);
     }
 
     //enable reuse
     int reuseaddr = 1;
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
+    setsockopt(c.sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(reuseaddr));
 
     //set socket as non blocking 
-    setnonblocking(sock);
+    c.setnonblocking(c.sock);
 
     //binding
     memset(&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = SERVER_PORT;
-    if(bind(sock, (sockaddr *) &server_address, sizeof(server_address)) < 0) {
+    if(bind(c.sock, (sockaddr *) &server_address, sizeof(server_address)) < 0) {
         ERROR("Error in Binding");
-        close(sock);
+        close(c.sock);
         exit(EXIT_FAILURE);
     }
     
     //Setup queue
-    listen(sock,MAX_CLIENTS);
+    listen(c.sock,MAX_CLIENTS);
 
     //as we start with one socket init it as higsocket for select
-    highsock = sock;
-    memset((char *) &connectionlist, 0, sizeof(connectionlist));
+    c.highsock = c.sock;
+    memset((char *) &c.connectionlist, 0, sizeof(c.connectionlist));
 
     //Loop forever 
     while(1) {
-        buildselectlist();
+        c.buildselectlist();
         timeout.tv_sec = 2;
         timeout.tv_usec = 0;
         
-        readsocks = select(highsock+1, &socks, (fd_set *) 0, (fd_set *) 0,
+        readsocks = select(c.highsock+1, &c.socks, (fd_set *) 0, (fd_set *) 0,
                              &timeout);
 
         if(readsocks < 0) {
@@ -153,7 +152,7 @@ void connection::run_connection() {
             //no new messages print .
             std::cout<<".";
         } else {
-            read_socks();
+            c.read_socks();
         }
     }
 }

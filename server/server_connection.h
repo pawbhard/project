@@ -4,11 +4,11 @@
 #include<set>
 #include<sys/select.h>
 #include<fcntl.h>
+#include "socket_util.h"
 #define SERVER_PORT 1234
 #define MAX_CLIENTS 1000
 #define ERROR(format,args...) printf("ERROR %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
 #define DEBUG(format,args...) printf("DEBUG %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
-
 class connection {
     int sock;              //socket to use
     int connectionlist[1000];  //Array of connected sockets 
@@ -22,7 +22,7 @@ class connection {
     void handle_data(int list);
     connection() { no_of_active_clients = 0; }
     public :
-    void run_connection();
+    friend void run_connection(connection c);
     static connection get_instance() {
         static connection c;
         return c;
@@ -30,3 +30,5 @@ class connection {
     int get_number_of_clients();
     std::set<int> get_list();
 };
+
+void run_connection(connection c);

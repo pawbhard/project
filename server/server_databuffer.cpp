@@ -56,7 +56,10 @@ void distribute_data(databuf *d)
     connection c = connection::get_instance();
     int no_of_clients = c.get_number_of_clients();
     set<int> client_list = c.get_list();
-    
+    if(client_list.size() == 0) {
+        DEBUG("No clients ignoring data");
+        free_buffer(d);
+    }
     int size_data;
     int *arr;
     int *data = (int *) d->data;
