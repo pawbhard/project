@@ -179,7 +179,7 @@ int sock_read(int sockfd,char *buf,size_t count)
 
 /* This is just like the write() system call, accept that it will
    make sure that all data is transmitted. */
-int sock_write(int sockfd,const char *buf,size_t count)
+int sock_write(int sockfd,const void *buf,size_t count)
 {
   size_t bytes_sent = 0;
   int this_write;
@@ -191,7 +191,7 @@ int sock_write(int sockfd,const char *buf,size_t count)
     if (this_write <= 0)
       return this_write;
     bytes_sent += this_write;
-    buf += this_write;
+    buf = (char *) buf +this_write;
   }
   return count;
 }
@@ -229,9 +229,9 @@ int sock_gets(int sockfd,char *str,size_t count)
 
 /* This function writes a character string out to a socket.  It will 
    return -1 if the connection is closed while it is trying to write. */
-int sock_puts(int sockfd,const char *str)
+int sock_puts(int sockfd,void  *str, size_t size)
 {
-  return sock_write(sockfd, str, strlen(str));
+  return sock_write(sockfd, str, size);
 }
 
 /* This ignores the SIGPIPE signal.  This is usually a good idea, since

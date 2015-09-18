@@ -51,7 +51,8 @@ void connection::handle_new_connection() {
     }
     if(connection != -1) {
         DEBUG("No room left for new client ");
-        sock_puts(connection, "Server busy Try later ");
+        char buf[] = "Server busy Try later ";
+        sock_puts(connection, (void *)buf ,strlen(buf));
         close(connection);
     }
 }
@@ -72,7 +73,7 @@ void connection::handle_data(int list) {
         //catenate received and send back
         strncat(buffer," : Received \n",1024);
 
-        sock_puts(connectionlist[list],buffer);
+        sock_puts(connectionlist[list],(void *) buffer, strlen(buffer));
     }
 }
 
