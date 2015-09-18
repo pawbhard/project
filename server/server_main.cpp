@@ -4,7 +4,7 @@
 
 int main() {
 
-    connection conn;
+    connection conn = connection::get_instance() ;
     conn.run_connection();
     return 0;
 }

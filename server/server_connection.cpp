@@ -47,6 +47,7 @@ void connection::handle_new_connection() {
                 connection,list);
             connectionlist[list] = connection;
             connection = -1;
+            no_of_active_clients++;
         }
     }
     if(connection != -1) {
@@ -66,6 +67,7 @@ void connection::handle_data(int list) {
             connectionlist[list],list);
         //free up slot
         connectionlist[list] = 0;
+        no_of_active_clients--;
     } else {
         //received data 
         std::cout<<"Received "<<buffer;
@@ -156,4 +158,15 @@ void connection::run_connection() {
     }
 }
 
-
+int connection::get_number_of_clients() {
+    return no_of_active_clients;
+}
+std::set<int> connection::get_list() {
+    std::set<int> clients;
+    int list;
+    for(list = 0; list < MAX_CLIENTS ; list++) {
+        if(connectionlist[list] != 0)
+            clients.insert(connectionlist[list]);
+    }
+    return clients;
+}
