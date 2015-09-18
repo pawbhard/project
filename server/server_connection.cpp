@@ -72,8 +72,13 @@ void connection::handle_data(int list) {
         
         //catenate received and send back
         strncat(buffer," : Received \n",1024);
+        
+       //sock_puts(connectionlist[list],(void *) buffer, strlen(buffer));
 
-        sock_puts(connectionlist[list],(void *) buffer, strlen(buffer));
+        //try sending integer arrray 
+        int arr[] = { 2,4,6,8};
+        size_t sz = sizeof(arr);
+        sock_puts(connectionlist[list],(void *) arr, sz);
     }
 }
 

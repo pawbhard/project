@@ -1,13 +1,13 @@
-#include <stdio.h>
-#include <string.h>   //strlen
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>   //strlen
+#include <cstdlib>
 #include <errno.h>
 #include <unistd.h>   //close
 #include <arpa/inet.h>    //close
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
+#include<iostream>
 #define TRUE   1
 #define FALSE  0
 #define PORT 1234
@@ -18,6 +18,10 @@ int main(int argc, char *argv[])
     char sendline[1000];
     char recvline[1000];
 
+    //test int array
+    int ar[20];
+    memset(ar,0,sizeof(ar));
+    
     char buffer[1025];
     int sock ,n;
     struct sockaddr_in address;
@@ -32,9 +36,17 @@ int main(int argc, char *argv[])
     while (fgets(sendline,1000,stdin) != 0) {
         sendto(sock,sendline,strlen(sendline) ,0,
                 (struct sockaddr *)&address,sizeof(address));
-        n=recvfrom(sock,recvline,1000,0,NULL,NULL);
-        recvline[n]=0;
-        fputs(recvline,stdout);
+        //n=recvfrom(sock,recvline,1000,0,NULL,NULL);
+        //recvline[n]=0;
+        //fputs(recvline,stdout);
+
+        recvfrom(sock, (void *) ar, sizeof(ar) , 0,
+            NULL,NULL);
+
+        int i;
+        for(int i = 0; i < 20; i++)
+            std::cout<<"Value "<<i<<" is "<<ar[i];
+        std::cout<<"\n";
     }
 }
 
