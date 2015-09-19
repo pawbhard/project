@@ -8,11 +8,32 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include<iostream>
+#include<thread>
+
 #define TRUE   1
 #define FALSE  0
 #define PORT 1234
 
+void receiver(int sock);
+int  task_perform(int *ar, int N, int task);
+int  cal_mean(int *ar, int N);
 
+void receiver(int sock) {
+    int rec,N;
+    int ar[10000]; //capacity to process
+    while(1) {
+        memset(ar,0,sizeof(ar));
+        rec = recvfrom(sock, (void *) ar, sizeof(ar) ,0,NULL,NULL);
+        if(rec > 0) {
+            int N = ar[0]; //Get number of element from start;
+            int i;
+            std::cout<<"Received array ";
+            for(int i = 1; i <= N; i++)
+                std::cout<<ar[i]<<" , ";
+            std::cout<<"\n";
+        }
+    }
+}
 int main(int argc, char *argv[])
 {
     char sendline[1000];
@@ -33,31 +54,7 @@ int main(int argc, char *argv[])
     address.sin_port = 1234;
 
     connect(sock, (struct sockaddr *) &address, sizeof(address));
-    int rec;
-    while(1) {
-        memset(ar,0,sizeof(ar));
-        rec = recvfrom(sock, (void *) ar, sizeof(ar) ,0,NULL,NULL);
-        if(rec > 0) {
-            int i;
-            for(int i = 0; i < 20; i++)
-                std::cout<<"Value "<<i<<" is "<<ar[i]<<"\n";
-        }
-        //sleep(1);
-    }
-/*    while (fgets(sendline,1000,stdin) != 0) {
-        sendto(sock,sendline,strlen(sendline) ,0,
-                (struct sockaddr *)&address,sizeof(address));
-        //n=recvfrom(sock,recvline,1000,0,NULL,NULL);
-        //recvline[n]=0;
-        //fputs(recvline,stdout);
-
-        recvfrom(sock, (void *) ar, sizeof(ar) , 0,
-            NULL,NULL);
-
-        int i;
-        for(int i = 0; i < 20; i++)
-            std::cout<<"Value "<<i<<" is "<<ar[i];
-        std::cout<<"\n";
-    } */
+    std::thread rec(receiver,sock);
+    rec.join();
 }
 

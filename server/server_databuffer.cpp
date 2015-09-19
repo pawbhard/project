@@ -77,9 +77,10 @@ void distribute_data(databuf *d)
     {
         if(cap <= 0) break;
         size_data = cap > per_client ? per_client : cap;
-        arr = new int[size_data];
-        memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
-        put = sock_puts(*it, (void *) arr, size_data*sizeof(int));
+        arr = new int[size_data+1]; //in first sending no of element
+        arr[0] = size_data;
+        memcpy(arr+1,data+(d->capacity - cap) , size_data*sizeof(int));
+        put = sock_puts(*it, (void *) arr, (size_data+1)*sizeof(int));
         DEBUG("Sending %d data to %d",put,*it);
         cap -= size_data;
         free(arr);
