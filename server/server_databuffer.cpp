@@ -20,12 +20,13 @@ void filldata(databuf *dbuf) {
     int *ar = (int *) dbuf->data;
     int pos = 0;
     while(1) {
+        ar = (int *) dbuf->data;
         sleep(1);
         random_integer = uni(rng);
         DEBUG("Integer generated %d",random_integer);
         ar[pos] = random_integer;
         pos++;
-        if(pos == dbuf->capacity -1) {
+        if(pos == dbuf->capacity) {
             //buffer is full send this to some one and create new 
             databuf *temp = dbuf;
             dbuf = NULL;
@@ -51,6 +52,8 @@ void free_buffer(databuf **d) {
 
 void distribute_data(databuf *d)
 {
+
+    
     //1. find no of clients 
     //2. divide capacity and create limits 
     //3. iterate and send data to clients 
@@ -64,7 +67,7 @@ void distribute_data(databuf *d)
         free_buffer(&d);
         return;
     }
-    int size_data;
+    int size_data,put;
     int *arr;
     int *data = (int *) d->data;
     int cap = d->capacity;
@@ -76,9 +79,10 @@ void distribute_data(databuf *d)
         size_data = cap > per_client ? per_client : cap;
         arr = new int[size_data];
         memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
-        sock_puts(*it, (void *) arr, size_data*sizeof(int));
-        DEBUG("Sending data to %d",*it);
+        put = sock_puts(*it, (void *) arr, size_data*sizeof(int));
+        DEBUG("Sending %d data to %d",put,*it);
         cap -= size_data;
+        free(arr);
     }
     DEBUG("Send complete");
     free_buffer(&d);
