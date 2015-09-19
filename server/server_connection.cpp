@@ -58,9 +58,11 @@ void connection::handle_new_connection() {
 }
 
 void connection::handle_data(int list) {
-    char buffer[1024]; //for read 
-    
-    if(sock_gets(connectionlist[list], buffer, 1024) < 0) {
+   // char buffer[1024]; //for read 
+    int buffer[100]; //for read
+
+    //if(sock_gets(connectionlist[list],(void *) buffer, sizeof(buffer)) < 0) {
+      if(read(connectionlist[list], (void *)buffer , sizeof(buffer)) < 0) { 
         ERROR("No thing in gets");
         DEBUG("Connection lost : fd = %d; slot = %d\n",
             connectionlist[list],list);
@@ -69,11 +71,17 @@ void connection::handle_data(int list) {
         no_of_active_clients--;
     } else {
         //received data 
-        std::cout<<"Received "<<buffer;
+        std::cout<<"Received : ";
+        std::cout<<buffer[0]<<" "
+                 <<buffer[1]<<" "
+                 <<buffer[2]<<" "
+                 <<"\n";
         
-        //catenate received and send back
-        strncat(buffer," : Received \n",1024);
-        
+       //update Results  
+        Result *res = Result::get_instance();
+        std::cout<<"Previous "<<res->get_mean()<<" "<<res->get_mean_elements()<<"\n";
+        res->update_result(buffer[0],buffer[1],buffer[2]);
+        std::cout<<"Updated "<<res->get_mean()<<" "<<res->get_mean_elements()<<"\n";
        //sock_puts(connectionlist[list],(void *) buffer, strlen(buffer));
         /*
         //try sending integer arrray 

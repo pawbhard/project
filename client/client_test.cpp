@@ -9,15 +9,48 @@
 #include <netinet/in.h>
 #include<iostream>
 #include<thread>
+#include<vector>
 
 #define TRUE   1
 #define FALSE  0
 #define PORT 1234
 
-void receiver(int sock);
-int  task_perform(int *ar, int N, int task);
-int  cal_mean(int *ar, int N);
+//define tasks
+#define MEAN 0
 
+void receiver(int sock);
+void  task_perform(int sock, std::vector<int> vec, int task);
+int  cal_mean(std::vector<int> vec);
+
+int cal_mean(std::vector<int> vec) {
+    std::vector<int>::iterator it;
+    int result = 0;
+    for (it=vec.begin(); it<vec.end(); it++)
+        result += *it;
+    return result/vec.size();
+}
+
+void task_perform(int sock, std::vector<int> vec, int task) {
+    //perform task and send result back
+   /* std::cout << "myvector contains:";
+    std::vector<int>::iterator it;
+    for (it=vec.begin(); it<vec.end(); it++)
+        std::cout << ' ' << *it;
+    std::cout << '\n';*/
+    int result = 0;
+    switch (task) {
+        case MEAN: result = cal_mean(vec);
+                   break;
+
+        default : std::cout<<"Unknown task";
+    }
+
+    //Now we have result 
+    //send data back to server
+    //format [ TASK, No_of_ele, result ]
+    int send_ar[] = { task, (signed) vec.size(), result };
+    send(sock, (void *) send_ar, sizeof(send_ar) , 0);
+}
 void receiver(int sock) {
     int rec,N;
     int ar[10000]; //capacity to process
@@ -31,6 +64,13 @@ void receiver(int sock) {
             for(int i = 1; i <= N; i++)
                 std::cout<<ar[i]<<" , ";
             std::cout<<"\n";
+
+            std::cout<<"Sending to calculate mean \n";
+            //create a vector and pass it by value
+            std::vector<int> vec;
+            vec.insert(vec.begin(),ar+1,ar+N+1);
+            std::thread t (task_perform,sock,vec,MEAN);
+            t.detach();
         }
     }
 }

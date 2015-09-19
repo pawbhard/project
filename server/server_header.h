@@ -8,7 +8,7 @@
 #include<thread>
 
 #include"socket_util.h"
-
+#include"server_result.h"
 #define SERVER_PORT 1234
 #define MAX_CLIENTS 10
 

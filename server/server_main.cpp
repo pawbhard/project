@@ -1,6 +1,7 @@
 
 #include "server_header.h"
 connection* connection::cco = NULL;
+Result *Result::result = NULL;
 int main() {
 
     connection *conn = connection::get_instance() ;

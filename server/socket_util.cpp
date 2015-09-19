@@ -202,14 +202,17 @@ int sock_write(int sockfd,const void *buf,size_t count)
    operation.
    Note that if a single line exceeds the length of count, the extra data
    will be read and discarded!  You have been warned. */
-int sock_gets(int sockfd,char *str,size_t count)
+int sock_gets(int sockfd,void *str,size_t count)
 {
   int bytes_read;
+  bytes_read = read(sockfd,str,count);
+  
+  #if 0
   int total_count = 0;
   char *current_position;
   char last_read = 0;
 
-  current_position = str;
+  current_position = (char *)str;
   while (last_read != 10) {
     bytes_read = read(sockfd, &last_read, 1);
     if (bytes_read <= 0) {
@@ -225,6 +228,8 @@ int sock_gets(int sockfd,char *str,size_t count)
   if (count > 0)
     current_position[0] = 0;
   return total_count;
+#endif
+
 }
 
 /* This function writes a character string out to a socket.  It will 
