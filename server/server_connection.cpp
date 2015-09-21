@@ -67,7 +67,7 @@ void connection::handle_data(int list) {
    // char buffer[1024]; //for read 
     int buffer[100]; //for read
     int r = read(connectionlist[list], (void *)buffer , sizeof(buffer));
-    std::cout<<"Val r is "<<r<<"\n";
+    std::cout<<"Number of  read byte is "<<r<<" \n";
     //if(sock_gets(connectionlist[list],(void *) buffer, sizeof(buffer)) < 0) {
       if(r <= 0) { 
         ERROR("No thing in gets");
@@ -82,16 +82,16 @@ void connection::handle_data(int list) {
         connection_free[list] = true;
         //received data 
         std::cout<<"Received : ";
-        std::cout<<buffer[0]<<" "
-                 <<buffer[1]<<" "
-                 <<buffer[2]<<" "
+        std::cout<<buffer[0]<<"(opcode) "
+                 <<buffer[1]<<"(No of elements) "
+                 <<buffer[2]<<"(Mean) "
                  <<"\n";
         
        //update Results  
         Result *res = Result::get_instance();
-        std::cout<<"Previous "<<res->get_mean()<<" "<<res->get_mean_elements()<<"\n";
+        std::cout<<"Previous Mean :"<<res->get_mean()<<" Elements"<<res->get_mean_elements()<<"\n";
         res->update_result(buffer[0],buffer[1],buffer[2]);
-        std::cout<<"Updated "<<res->get_mean()<<" "<<res->get_mean_elements()<<"\n";
+        std::cout<<"Updated Mean"<<res->get_mean()<<" Elements"<<res->get_mean_elements()<<"\n";
        //sock_puts(connectionlist[list],(void *) buffer, strlen(buffer));
         /*
         //try sending integer arrray 

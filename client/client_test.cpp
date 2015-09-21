@@ -71,7 +71,7 @@ void receiver(int sock) {
             std::vector<int> vec;
             vec.insert(vec.begin(),ar+1,ar+N+1);
             std::thread t (task_perform,sock,vec,MEAN);
-            t.detach();
+            t.join();
         }
     }
 }
