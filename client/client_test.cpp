@@ -10,6 +10,7 @@
 #include<iostream>
 #include<thread>
 #include<vector>
+#include<unistd.h>
 
 #define TRUE   1
 #define FALSE  0
@@ -94,6 +95,13 @@ int main(int argc, char *argv[])
     address.sin_port = 1234;
 
     connect(sock, (struct sockaddr *) &address, sizeof(address));
+    memset(buffer,0,sizeof(buffer));
+    read(sock,buffer,1025);
+    std::cout<<"Message Received : " << buffer<<"\n";
+    memset(buffer,0,sizeof(buffer));
+    std::cout<<"Joined group Mean\n";
+    //strcpy(buffer,"Mean");
+    //write(sock,buffer,sizeof(buffer));
     std::thread rec(receiver,sock);
     rec.join();
 }

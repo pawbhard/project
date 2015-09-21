@@ -1,14 +1,27 @@
 #include "server_header.h"
+#include "threadpool.h"
+
 using namespace std;
 void init_buffer(int cap, databuf **d) {
     (*d) = new databuf;
+    if(!*d) {
+        std::cout<<"Malloc failed ";
+        exit(EXIT_FAILURE);
+    }
     (*d)->capacity = cap;
     (*d)->data = new int[cap];
+    if((*d)->data == NULL) {
+        std::cout<<"Malloc failed";
+        exit(EXIT_FAILURE);
+    }
 }
 
 void filldata(databuf *dbuf) {
-    
-    int random_integer,minn =  10,maxx = 10000;
+
+    //Create thread pool for distrubute 
+    thread_pool t;
+
+    int random_integer,minn =  20,maxx = 70;
     //For now generate random integer
     std::random_device rd;     
     // only used once to initialise (seed) engine
@@ -23,7 +36,7 @@ void filldata(databuf *dbuf) {
         ar = (int *) dbuf->data;
         sleep(1);
         random_integer = uni(rng);
-        DEBUG("Integer generated %d",random_integer);
+        DEBUG("Got temprature from snmp %d",random_integer);
         ar[pos] = random_integer;
         pos++;
         if(pos == dbuf->capacity) {
@@ -32,10 +45,13 @@ void filldata(databuf *dbuf) {
             dbuf = NULL;
             init_buffer(temp->capacity, &dbuf);
             pos = 0;
-            //call function in separate thread 
+            t.submit(distribute_data,(void *) temp);
+           /*si
+           //call function in separate thread 
             std::thread distribute(distribute_data, temp);
             //detach the thread
             distribute.detach();
+            */
         }
     }
 }
@@ -50,10 +66,10 @@ void free_buffer(databuf **d) {
         }
 }
 
-void distribute_data(databuf *d)
+void distribute_data(void *arg)
 {
 
-    
+    databuf *d = (databuf *) arg;
     //1. find no of clients 
     //2. divide capacity and create limits 
     //3. iterate and send data to clients 
@@ -68,7 +84,7 @@ void distribute_data(databuf *d)
         return;
     }
     int size_data,put;
-    int *arr;
+    int *arr = NULL;
     int *data = (int *) d->data;
     int cap = d->capacity;
     int per_client = ceil((float)cap/(float)no_of_clients);
@@ -77,13 +93,18 @@ void distribute_data(databuf *d)
     {
         if(cap <= 0) break;
         size_data = cap > per_client ? per_client : cap;
-        arr = new int[size_data+1]; //in first sending no of element
+        arr = new int[size_data+1];//in first sending no of element
+        if(arr == NULL) {
+            std::cout<<"MAlloc failed";
+            exit(EXIT_FAILURE);
+        }
         arr[0] = size_data;
         memcpy(arr+1,data+(d->capacity - cap) , size_data*sizeof(int));
         put = sock_puts(*it, (void *) arr, (size_data+1)*sizeof(int));
         DEBUG("Sending %d data to %d",put,*it);
         cap -= size_data;
         free(arr);
+        arr = NULL;
     }
     DEBUG("Send complete");
     free_buffer(&d);

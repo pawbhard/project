@@ -33,11 +33,17 @@ void connection::handle_new_connection() {
     int list;
     int connection;  // fd for incoming connection
     connection = accept(sock,NULL,NULL);
-    if(connection < 0) {
+    DEBUG("Handshake init");
+    char buf[100] = " MEAN RANGE .. ";
+   send(connection,buf,strlen(buf),0);
+   /* memset(buf,0,sizeof(buf));
+    read(connection,buf,100); */
+    DEBUG("Group joined : Mean");
+   /* if(connection < 0) {
         ERROR("Accept failure");
         exit(EXIT_FAILURE);
     }
-    
+    */
     //set connection non blocking
     setnonblocking(connection);
     for(list = 0; list < MAX_CLIENTS && connection != -1; list++) {
@@ -60,16 +66,20 @@ void connection::handle_new_connection() {
 void connection::handle_data(int list) {
    // char buffer[1024]; //for read 
     int buffer[100]; //for read
-
+    int r = read(connectionlist[list], (void *)buffer , sizeof(buffer));
+    std::cout<<"Val r is "<<r<<"\n";
     //if(sock_gets(connectionlist[list],(void *) buffer, sizeof(buffer)) < 0) {
-      if(read(connectionlist[list], (void *)buffer , sizeof(buffer)) < 0) { 
+      if(r <= 0) { 
         ERROR("No thing in gets");
         DEBUG("Connection lost : fd = %d; slot = %d\n",
             connectionlist[list],list);
         //free up slot
         connectionlist[list] = 0;
+        connection_free[list] = true;
         no_of_active_clients--;
-    } else {
+    } else  {
+        //data received set client free
+        connection_free[list] = true;
         //received data 
         std::cout<<"Received : ";
         std::cout<<buffer[0]<<" "

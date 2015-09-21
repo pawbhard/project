@@ -1,2 +1,9 @@
-server: server_connection.cpp server_main.cpp socket_util.cpp server_databuffer.cpp server_result.cpp
-	g++ -std=gnu++11 -g -pthread -o server_run server_result.cpp server_databuffer.cpp server_connection.cpp server_main.cpp socket_util.cpp -I.
+CC=g++
+
+OBJ = server_connection.o server_main.o socket_util.o server_databuffer.o server_result.o threadpool.o
+
+%.o: %.cpp
+	$(CC) -c -g -std=gnu++11 -pthread -I. -o $@ $< 
+
+server_run: $(OBJ)
+	g++ -o $@ $^ -g -std=gnu++11 -pthread -I.

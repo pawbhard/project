@@ -19,6 +19,7 @@
 class connection {
     int sock;              //socket to use
     int connectionlist[1000];  //Array of connected sockets 
+    bool connection_free[1000]; //true means free
     fd_set socks;              //for select 
     int highsock;              //Highest file descriptor for select
     int no_of_active_clients;
@@ -27,7 +28,11 @@ class connection {
     void handle_new_connection();
     void read_socks();
     void handle_data(int list);
-    connection() { no_of_active_clients = 0; }
+    connection() { 
+        no_of_active_clients = 0; 
+        for(int i = 0; i < 1000; i++)
+            connection_free[i] = true;
+    }
     static connection *cco;
 
      connection(connection const&){};             // copy constructor is private
@@ -52,5 +57,5 @@ struct databuf {
 
 void init_buffer(int cap, databuf **d);
 void filldata(databuf *dbuf);
-void distribute_data(databuf *d);
+void distribute_data(void *arg);
 void free_buffer(databuf **d);
