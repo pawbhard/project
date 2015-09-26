@@ -1,4 +1,5 @@
 #include "server_header.h"
+#include "database_def.h"
 void connection::setnonblocking(int sock) {
     DEBUG("Setting nonblocking for socket %d",sock);
     int opts;
@@ -34,7 +35,7 @@ void connection::handle_new_connection() {
     int connection;  // fd for incoming connection
     connection = accept(sock,NULL,NULL);
     DEBUG("Handshake init");
-    char buf[100] = " MEAN RANGE .. ";
+    char buf[100] = " Available : MEAN (100)  RANGE (200)  .. ";
    send(connection,buf,strlen(buf),0);
    /* memset(buf,0,sizeof(buf));
     read(connection,buf,100); */
@@ -64,41 +65,40 @@ void connection::handle_new_connection() {
 }
 
 void connection::handle_data(int list) {
-   // char buffer[1024]; //for read 
-    int buffer[100]; //for read
+    int buffer_int[3];
+    char buffer[1024];
+    memset(buffer,0,sizeof(buffer));
     int r = read(connectionlist[list], (void *)buffer , sizeof(buffer));
-    std::cout<<"Number of  read byte is "<<r<<" \n";
-    //if(sock_gets(connectionlist[list],(void *) buffer, sizeof(buffer)) < 0) {
+    DEBUG("No of read bytes is %d",r);
       if(r <= 0) { 
         ERROR("No thing in gets");
         DEBUG("Connection lost : fd = %d; slot = %d\n",
             connectionlist[list],list);
         //free up slot
+        connection_free[list] = true;
+        //delete client from database 
+        DB *dd = DB::get_instance();
+        dd->delete_client(connectionlist[list]);
         connectionlist[list] = 0;
-        connection_free[list] = true;
-        no_of_active_clients--;
     } else  {
-        //data received set client free
-        connection_free[list] = true;
-        //received data 
+        memset(buffer_int,0,sizeof(buffer_int));
+        memcpy(buffer_int,buffer,sizeof(buffer_int));
         std::cout<<"Received : ";
-        std::cout<<buffer[0]<<"(opcode) "
-                 <<buffer[1]<<"(No of elements) "
-                 <<buffer[2]<<"(Mean) "
+        std::cout<<buffer_int[0]<<" task_id \n"
+                 <<buffer_int[1]<<" opcode \n"
+                 <<buffer_int[2]<<" No of elements "
                  <<"\n";
         
-       //update Results  
-        Result *res = Result::get_instance();
-        std::cout<<"Previous Mean :"<<res->get_mean()<<" Elements"<<res->get_mean_elements()<<"\n";
-        res->update_result(buffer[0],buffer[1],buffer[2]);
-        std::cout<<"Updated Mean"<<res->get_mean()<<" Elements"<<res->get_mean_elements()<<"\n";
-       //sock_puts(connectionlist[list],(void *) buffer, strlen(buffer));
-        /*
-        //try sending integer arrray 
-        int arr[] = { 2,4,6,8};
-        size_t sz = sizeof(arr);
-        sock_puts(connectionlist[list],(void *) arr, sz);
-        */
+       //update
+       if(buffer_int[0]) {
+           float *element;
+           element = new float[buffer_int[2]] ;
+           memset(element,0,sizeof(float)*buffer_int[2]);
+           memcpy(element, buffer+3*sizeof(int) ,sizeof(float)*buffer_int[2]); 
+           handle_results(connectionlist[list],buffer_int, element);
+       } else {
+           handle_join(connectionlist[list],buffer_int);
+       }
     }
 }
 
@@ -169,7 +169,8 @@ void run_connection(connection *c) {
 
         if(readsocks == 0) {
             //no new messages print .
-            std::cout<<".";
+            //std::cout<<".";
+            ;
         } else {
             c->read_socks();
         }

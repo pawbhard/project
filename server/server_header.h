@@ -6,15 +6,25 @@
 #include<fcntl.h>
 #include<random>
 #include<thread>
+#include<assert.h>
 
 #include"socket_util.h"
 #include"server_result.h"
+#include "server_constants.h"
+
 #define SERVER_PORT 1234
 #define MAX_CLIENTS 10
+#define DEBUG_ENABLE
+#ifdef DEBUG_ENABLE
 
 #define ERROR(format,args...) printf("ERROR %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
 
 #define DEBUG(format,args...) printf("DEBUG %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
+
+#else
+#define ERROR(format,args...) printf(" ")
+#define DEBUG(format,args...) printf(" ")
+#endif
 
 class connection {
     int sock;              //socket to use
@@ -59,3 +69,6 @@ void init_buffer(int cap, databuf **d);
 void filldata(databuf *dbuf);
 void distribute_data(void *arg);
 void free_buffer(databuf **d);
+void handle_results(int client_id, int *buffer, float *element);
+void handle_join(int client_id, int *buffer);
+

@@ -1,7 +1,9 @@
 #include "server_header.h"
 #include "threadpool.h"
+#include "database_def.h"
 
 using namespace std;
+static int task_id = 1;
 void init_buffer(int cap, databuf **d) {
     (*d) = new databuf;
     if(!*d) {
@@ -30,14 +32,14 @@ void filldata(databuf *dbuf) {
     std::uniform_int_distribution<int> uni(minn,maxx); 
     // guaranteed unbiased
     DEBUG("In fill data capacity %d",dbuf->capacity);
-    int *ar = (int *) dbuf->data;
+    float *ar = (float *) dbuf->data;
     int pos = 0;
     while(1) {
-        ar = (int *) dbuf->data;
+        ar = (float *) dbuf->data;
         sleep(1);
         random_integer = uni(rng);
-        DEBUG("Got temprature from snmp %d",random_integer);
-        ar[pos] = random_integer;
+        //DEBUG("Got temprature from snmp %d",random_integer);
+        ar[pos] = (float) random_integer;
         pos++;
         if(pos == dbuf->capacity) {
             //buffer is full send this to some one and create new 
@@ -46,12 +48,6 @@ void filldata(databuf *dbuf) {
             init_buffer(temp->capacity, &dbuf);
             pos = 0;
             t.submit(distribute_data,(void *) temp);
-           /*si
-           //call function in separate thread 
-            std::thread distribute(distribute_data, temp);
-            //detach the thread
-            distribute.detach();
-            */
         }
     }
 }
@@ -70,6 +66,71 @@ void distribute_data(void *arg)
 {
 
     databuf *d = (databuf *) arg;
+    //Steps 
+    // 1. get all task iterate on them 
+    // 2. for each get one free group 
+    // 3. get all clients for that group 
+    // 4. construct and send data to client
+    // 5. track data sent 
+    // 6. start a timer for task_id
+    
+    DB *db = DB::get_instance();
+    int i , opcode;
+    for ( i = 0; i < MAX_TASK ; i++ ) {
+        switch(i) {
+            case MEAN : opcode = MEAN ;
+                        break;
+            case RANGE : opcode = RANGE;
+                         break;
+            default :   ERROR("Unkown opcode error");
+                        assert(0);
+        }
+        int group_id = db->get_free_group(opcode);
+        set<int> client_list = db->get_client_list(group_id);
+        if(client_list.size() == 0) {
+            DEBUG("No clients free ignoring data for opcode %d",opcode);
+            free_buffer(&d);
+            return;
+        }
+
+        int size_data,put;
+        int no_of_clients = client_list.size();
+        int buf[3];
+        buf[0] = task_id; task_id++;
+        buf[1] = i; //opcode from loop 
+        float *arr = NULL;
+        float *data = (float *) d->data;
+        int cap = d->capacity;
+        int per_client = ceil((float)cap/(float)no_of_clients);
+        set<int>::iterator it;
+        for(it = client_list.begin() ; it != client_list.end(); ++it)
+        {
+            if(cap <= 0) break;
+            size_data = cap > per_client ? per_client : cap;
+            buf[2] = size_data; //set third parameter
+            arr = new float[size_data];//in first sending no of element
+            if(arr == NULL) {
+                std::cout<<"MAlloc failed";
+                exit(EXIT_FAILURE);
+            }
+                                                    //TODO Tracking of data
+            //copy and send data 
+            memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
+            //copy both 
+            char buffer[1000]; //to send data
+            memcpy(buffer,buf,sizeof(int)*3);
+            memcpy(buffer+sizeof(int)*3,arr,sizeof(float)*size_data);
+            int total_size = sizeof(int) * 3 + sizeof(float)*size_data;
+            put = sock_puts(*it, (void *) buffer, total_size);
+            assert(put == total_size);
+            DEBUG("Sending %d data to %d",put,*it);
+            cap -= size_data;
+            free(arr);
+            arr = NULL;
+        }
+        DEBUG("Send complete");
+    }
+#if 0
     //1. find no of clients 
     //2. divide capacity and create limits 
     //3. iterate and send data to clients 
@@ -107,6 +168,7 @@ void distribute_data(void *arg)
         arr = NULL;
     }
     DEBUG("Send complete");
+#endif
     free_buffer(&d);
 }
 

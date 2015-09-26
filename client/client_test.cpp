@@ -18,73 +18,93 @@
 
 //define tasks
 #define MEAN 0
+#define RANGE 1
 
 void receiver(int sock);
-void  task_perform(int sock, std::vector<int> vec, int task);
-int  cal_mean(std::vector<int> vec);
+void  task_perform(int sock, std::vector<float> vec, int task);
+int  cal_mean(std::vector<float> vec);
 
-int cal_mean(std::vector<int> vec) {
-    std::vector<int>::iterator it;
-    int result = 0;
+int cal_mean(std::vector<float> vec) {
+    std::vector<float>::iterator it;
+    float result = 0;
     for (it=vec.begin(); it<vec.end(); it++)
         result += *it;
+    std::cout<<"Mean calculated "<<result/vec.size()<<"\n";
     return result/vec.size();
 }
 
-void task_perform(int sock, std::vector<int> vec, int task) {
+void task_perform(int sock, std::vector<float> vec, int task) {
     //perform task and send result back
    /* std::cout << "myvector contains:";
     std::vector<int>::iterator it;
     for (it=vec.begin(); it<vec.end(); it++)
         std::cout << ' ' << *it;
     std::cout << '\n';*/
-    int result = 0;
+    float result = 0;
     switch (task) {
         case MEAN: result = cal_mean(vec);
                    break;
 
-        default : std::cout<<"Unknown task";
+        default : std::cout<<"Unknown task\n";
     }
 
     //Now we have result 
     //send data back to server
-    //format [ TASK, No_of_ele, result ]
-    int send_ar[] = { task, (signed) vec.size(), result };
-    send(sock, (void *) send_ar, sizeof(send_ar) , 0);
+    //format [ task_id opcode Number] [Number_mean Mean]
+    int task_id = 123;
+    int send_ar[] = { task_id, MEAN, 2 };
+    float send_ar2[] = { (float) vec.size(), result };
+    std::cout<<"\nSending array " << send_ar[0] <<" "<<send_ar[1] <<" "
+            <<send_ar[2] <<" size is "<<sizeof(send_ar)<<"\n";
+    std::cout<<"Sending result "<<send_ar2[0]<<" "<<send_ar2[1]<<"\n";
+    char buffer[1024];
+    memcpy(buffer,send_ar,sizeof(send_ar));
+    memcpy(buffer+sizeof(send_ar),send_ar2,sizeof(send_ar2));
+
+    int wr = send(sock, (void *) buffer, sizeof(send_ar)+sizeof(send_ar2) , 0);
+    std::cout<<"Bytes sent is "<<wr<< "\n";
 }
 void receiver(int sock) {
     int rec,N;
-    int ar[10000]; //capacity to process
+    int buf[3]; 
+    float elements[200];//MAXIMUM capacity of 1 client
+    char buffer[2000];
     while(1) {
-        memset(ar,0,sizeof(ar));
-        rec = recvfrom(sock, (void *) ar, sizeof(ar) ,0,NULL,NULL);
-        if(rec > 0) {
-            int N = ar[0]; //Get number of element from start;
+        memset(buffer,0,sizeof(buffer));
+        rec = recvfrom(sock, (void *) buffer, sizeof(buffer) ,0,NULL,NULL);
+        std::cout<<"received bytes "<<rec <<"\n";
+        if(rec > 12) {    //minimum 3 integer
+            memcpy(buf,buffer,sizeof(buf));
+            std::cout<<"task_id :"<<buf[0]
+                <<"opcode  :"<<buf[1]
+                <<"Number  :"<<buf[2]<<"\n";
+
+            memcpy(elements,buffer+sizeof(buf),buf[2]*sizeof(float));
             int i;
             std::cout<<"Received array ";
-            for(int i = 1; i <= N; i++)
-                std::cout<<ar[i]<<" , ";
+            for(int i = 1; i <= buf[2]; i++)
+                std::cout<<elements[i]<<" , ";
             std::cout<<"\n";
 
             std::cout<<"Sending to calculate mean \n";
             //create a vector and pass it by value
-            std::vector<int> vec;
-            vec.insert(vec.begin(),ar+1,ar+N+1);
+            std::vector<float> vec;
+            vec.insert(vec.begin(),elements,elements+buf[2]);
             std::thread t (task_perform,sock,vec,MEAN);
             t.join();
+        } else if(rec <= 0) { 
+            std::cout<<"No server exitting ,.....\n";
+            return;
         }
     }
 }
 int main(int argc, char *argv[])
 {
-    char sendline[1000];
-    char recvline[1000];
-
-    //test int array
-    int ar[20];
-    memset(ar,0,sizeof(ar));
+    char buffer[1024];
+    //Message format 
+    int buf[3]; float *elements;
+    char send[1024];
     
-    char buffer[1025];
     int sock ,n;
     struct sockaddr_in address;
 
@@ -94,14 +114,24 @@ int main(int argc, char *argv[])
     address.sin_addr.s_addr = inet_addr("127.0.0.1");
     address.sin_port = 1234;
 
+    //connect
     connect(sock, (struct sockaddr *) &address, sizeof(address));
+    
     memset(buffer,0,sizeof(buffer));
-    read(sock,buffer,1025);
+    int rc = read(sock,buffer,1025);
+    std::cout<<"received bytes "<<rc<<"\n";
     std::cout<<"Message Received : " << buffer<<"\n";
     memset(buffer,0,sizeof(buffer));
+
+    //send join request
+    buf[0] = 0;
+    buf[1] = MEAN; //for MEAN
+    buf[2] = 0;
     std::cout<<"Joined group Mean\n";
     //strcpy(buffer,"Mean");
-    //write(sock,buffer,sizeof(buffer));
+    int wr = write(sock,buf,sizeof(buf));
+    std::cout<<"Written bytes "<<wr<<"\n";
+    //start receiver
     std::thread rec(receiver,sock);
     rec.join();
 }
