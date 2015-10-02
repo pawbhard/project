@@ -113,4 +113,13 @@ int DB::delete_client(int client_id) {
     }
 }
 
-
+int DB::set_state(int group_id, bool state) {
+    unordered_map<int , bool>::iterator it;
+    it = group_state.find(group_id);
+    if(it == group_state.end()) {
+        DATABASE_DEBUG("Group not found");
+        return FAILURE;
+    }
+    it->second = state;
+    return SUCCESS;
+}

@@ -24,6 +24,8 @@ void handle_results(int client_id, int *buffer, float *elements) {
 
     //TODO delete tracking
     DEBUG("handling results %f %f",elements[0],elements[1]);
+    DB *db = DB::get_instance();
+    db->set_state(1,true);
     int opcode = buffer[1];
     Result *r = Result::get_instance();
     if(opcode == MEAN)

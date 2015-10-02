@@ -52,5 +52,6 @@ class DB
               set<int> get_client_list(int group_id);
               int get_free_group(int opcode);
               int delete_client(int client_id);
+              int set_state(int group_id, bool state);
 };
 

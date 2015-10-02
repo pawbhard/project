@@ -21,7 +21,7 @@
 #define RANGE 1
 
 void receiver(int sock);
-void  task_perform(int sock, std::vector<float> vec, int task);
+void  task_perform(int sock, std::vector<float> vec, int task, int id);
 int  cal_mean(std::vector<float> vec);
 
 int cal_mean(std::vector<float> vec) {
@@ -30,10 +30,11 @@ int cal_mean(std::vector<float> vec) {
     for (it=vec.begin(); it<vec.end(); it++)
         result += *it;
     std::cout<<"Mean calculated "<<result/vec.size()<<"\n";
+    sleep(1);
     return result/vec.size();
 }
 
-void task_perform(int sock, std::vector<float> vec, int task) {
+void task_perform(int sock, std::vector<float> vec, int task,int id) {
     //perform task and send result back
    /* std::cout << "myvector contains:";
     std::vector<int>::iterator it;
@@ -51,7 +52,7 @@ void task_perform(int sock, std::vector<float> vec, int task) {
     //Now we have result 
     //send data back to server
     //format [ task_id opcode Number] [Number_mean Mean]
-    int task_id = 123;
+    int task_id = id;
     int send_ar[] = { task_id, MEAN, 2 };
     float send_ar2[] = { (float) vec.size(), result };
     std::cout<<"\nSending array " << send_ar[0] <<" "<<send_ar[1] <<" "
@@ -90,7 +91,7 @@ void receiver(int sock) {
             //create a vector and pass it by value
             std::vector<float> vec;
             vec.insert(vec.begin(),elements,elements+buf[2]);
-            std::thread t (task_perform,sock,vec,MEAN);
+            std::thread t (task_perform,sock,vec,MEAN,buf[0]);
             t.join();
         } else if(rec <= 0) { 
             std::cout<<"No server exitting ,.....\n";
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
     connect(sock, (struct sockaddr *) &address, sizeof(address));
     
     memset(buffer,0,sizeof(buffer));
-    int rc = read(sock,buffer,1025);
+    int rc = read(sock,buffer,1024);
     std::cout<<"received bytes "<<rc<<"\n";
     std::cout<<"Message Received : " << buffer<<"\n";
     memset(buffer,0,sizeof(buffer));

@@ -36,7 +36,7 @@ void filldata(databuf *dbuf) {
     int pos = 0;
     while(1) {
         ar = (float *) dbuf->data;
-        sleep(1);
+        usleep(1);
         random_integer = uni(rng);
         //DEBUG("Got temprature from snmp %d",random_integer);
         ar[pos] = (float) random_integer;
@@ -89,9 +89,11 @@ void distribute_data(void *arg)
         set<int> client_list = db->get_client_list(group_id);
         if(client_list.size() == 0) {
             DEBUG("No clients free ignoring data for opcode %d",opcode);
-            free_buffer(&d);
-            return;
+            continue;
+            //free_buffer(&d);
+            //return;
         }
+        db->set_state(group_id, false);
 
         int size_data,put;
         int no_of_clients = client_list.size();
