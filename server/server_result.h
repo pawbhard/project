@@ -1,12 +1,15 @@
 #define MEAN 0
 #include<iostream>
+#include<mutex>
+
 class Result {
     float mean_final;
     int mean_elements;
     float min_final;
     float max_final;
     // other results
-
+    
+    std::mutex mut;
     Result() { mean_final=mean_elements=min_final=max_final=0;  }
     static Result *result;
     Result( Result const&) {};

@@ -4,7 +4,7 @@
 connection* connection::cco = NULL;
 Result *Result::result = NULL;
 DB *DB::db = NULL;
-#define CAPACITY 100
+#define CAPACITY get_capacity()
 int main() {
 
     connection *conn = connection::get_instance() ;

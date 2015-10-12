@@ -7,13 +7,19 @@
 #include<random>
 #include<thread>
 #include<assert.h>
+#include<mutex>
+#include<atomic>
+#include<queue>
+#include<memory>
+#include<mutex>
 
 #include"socket_util.h"
 #include"server_result.h"
 #include "server_constants.h"
+#include "server_config.h"
 
 #define SERVER_PORT 1234
-#define MAX_CLIENTS 10
+#define MAX_CLIENTS get_max_clients()
 #define DEBUG_ENABLE
 #ifdef DEBUG_ENABLE
 

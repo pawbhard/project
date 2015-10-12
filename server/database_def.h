@@ -5,6 +5,8 @@
 #include<iostream>
 #include <netinet/in.h>
 #include <assert.h>
+#include<mutex>
+
 #include "server_constants.h"
 #define DEBUG_ENABLE
 #ifdef DEBUG_ENABLE
@@ -25,6 +27,7 @@ class DB
     private : unordered_map <int, set<int>>  group_to_client;
               unordered_map <int, set<int>> opcode_to_group;
               unordered_map <int, bool> group_state;       //true free , false busy
+              mutex mut;        //mutex
               int get_group_counter(int flag) {
                   static unsigned int group_counter = 1;
                   if(flag == 1) //increment
