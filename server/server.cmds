@@ -1,0 +1,22 @@
+
+
+<cmd>
+syntax set value <int> <int>
+handler my_handler1
+</cmd>
+
+<cmd>
+syntax set cmd <int> <str>
+handler my_handler2
+</cmd>
+
+<cmd>
+syntax show value <int>
+handler my_handler1
+</cmd>
+
+<cmd>
+syntax show client <int> group <int>
+handler my_handler2
+</cmd>
+
