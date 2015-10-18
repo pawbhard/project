@@ -43,8 +43,10 @@ template <typename T>bool threadsafe_queue<T>::empty() const {
 }
 
 
-void thread_pool::worker_thread() {
-    while(!done) {
+void thread_pool::worker_thread(int i) {
+    std::shared_ptr<std::atomic<bool>> f(this->flag[i]); // a copy of the shared ptr to the flag
+    std::atomic<bool> & _flag = *f; //if flag is true exit
+    while(!done||!_flag) {
         Taskfunc task;
         if(work_queue.try_pop(task)) {
             task();
@@ -58,5 +60,30 @@ void thread_pool::submit(void (*f)(void *), void * arg) {
     work_queue.push(boost::bind(f,arg));
 }
 
+//Function to resize thread pool 
+void thread_pool::resize(int nthread) {
+    int i;
+    int oldThread = static_cast<int> (threads.size());
+    //Need to increase the size 
+    if(oldThread < nthread) {
+        threads.resize(nthread);
+        flag.resize(nthread);
+        for(i = oldThread; i < nthread ; i++ ) {
+            flag.push_back(std::make_shared<std::atomic<bool>>(false));
+            threads.push_back(
+                std::thread(&thread_pool::worker_thread,this,i));
+        }
+    }
+
+    //decrease threads
+    if(oldThread > nthread) {
+        for (int i = oldThread - 1; i >= nthread; --i) {
+            flag[i] = std::make_shared<std::atomic<bool>>(true);  // this thread will finish
+            threads[i].detach();
+        }
+        threads.resize(nthread);
+        flag.resize(nthread);
+    }
+}
 
 

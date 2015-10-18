@@ -56,14 +56,19 @@ class thread_pool {
     std::vector<std::thread> threads;
     join_threads joiner;
 
-    void worker_thread(); 
+    //New additions
+    //true means thread should exit
+    std::vector<std::shared_ptr<std::atomic<bool>>> flag;
+    void worker_thread(int i);
+    void resize(int nthread);
 public:
     thread_pool(): done(false), joiner(threads) {
         unsigned const thread_count = 3;
         try {
             for(unsigned i = 0; i<thread_count;++i) {
+                flag.push_back(std::make_shared<std::atomic<bool>>(false));
                 threads.push_back(
-                    std::thread(&thread_pool::worker_thread,this));
+                    std::thread(&thread_pool::worker_thread ,this,i));
             }
         } catch (...) {
             done = true;
