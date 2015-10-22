@@ -8,3 +8,7 @@ OBJ = server_connection.o server_main.o socket_util.o server_databuffer.o server
 
 server_run: $(OBJ)
 	g++ -o $@ $^ -g -std=gnu++11 -pthread -I.
+
+clean:
+	rm *.o
+	rm server_run

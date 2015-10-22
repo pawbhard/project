@@ -215,11 +215,9 @@ bool handle_command(string &input_cmd) {
 void run_shell()
 {
     string buf;
-    bool conf_mode = false;
-    string prompt = ORIG_PROMPT;
 
     while(1) {
-        cout << prompt;
+        cout << PROMPT;
         getline(cin, buf);
 
         buf = trim(buf); 
@@ -227,19 +225,9 @@ void run_shell()
         if(!buf.length())
             continue;
 
-        if(buf == "config") {
-            prompt = CONF_PROMPT;
-            conf_mode = true;
-        }
-        else if (buf == "exit") {
-            if(conf_mode == true) {
-                prompt = ORIG_PROMPT;
-                conf_mode = false;
-            }
-            else {
-                cout << "\nExiting Server\n";
-                exit(0);
-            }
+        if (buf == "exit") {
+            cout << "\nExiting Server\n";
+            exit(0);
         }
         else {
             if( handle_command(buf) == false ) {

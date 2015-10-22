@@ -18,7 +18,7 @@ int main() {
     init_buffer(CAPACITY,&d);
     
     /* TBD filldata has to be threaded to accomodate shell */
-    filldata(d);
+//    filldata(d);
 
     run_shell();
     return 0;
