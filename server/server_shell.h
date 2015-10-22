@@ -20,38 +20,11 @@ typedef struct cmd_params_ {
 void free_params(cmd_params * &params);
 void display_params(cmd_params * &params);
 
-/* Declare the command handlers here */
-
-//Sample
-void my_handler1(cmd_params *params) {
-    std::cout << "Entered my_handler 1\n";
-    free_params(params);
-
-}
-void my_handler2(cmd_params *params) {
-    std::cout << "Entered my_handler 2\n";
-    free_params(params);
-}
-
-
-
-/*end command handler declaration */
-
-
-
 typedef struct lkup_table_
 {
     void (*fn)(cmd_params *);
     const char* key;
 } lkup_table;
-
-lkup_table fn_tbl[] = 
-{
-    { &my_handler1, "my_handler1" },
-    { &my_handler2, "my_handler2" },
-    { NULL, NULL }
-};
-
 
 #endif
 

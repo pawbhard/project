@@ -1,18 +1,28 @@
 
 
 <cmd>
-syntax set value <int> <int>
-handler my_handler1
+syntax set max-clients <int>
+handler handle_set_max_clients
 </cmd>
 
 <cmd>
-syntax set cmd <int> <str>
-handler my_handler2
+syntax set capacity <int>
+handler handle_set_capacity
 </cmd>
 
 <cmd>
-syntax show value <int>
-handler my_handler1
+syntax show max-clients
+handler handle_get_max_clients
+</cmd>
+
+<cmd>
+syntax show capacity
+handler handle_get_capacity
+</cmd>
+
+<cmd>
+syntax show client-groups
+handler handle_get_client_groups
 </cmd>
 
 <cmd>

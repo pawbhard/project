@@ -140,7 +140,7 @@ void run_connection(connection *c) {
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = SERVER_PORT;
-    if(bind(c->sock, (sockaddr *) &server_address, sizeof(server_address)) < 0) {
+    if(::bind(c->sock, (sockaddr *) &server_address, sizeof(server_address)) < 0) {
         ERROR("Error in Binding");
         close(c->sock);
         exit(EXIT_FAILURE);

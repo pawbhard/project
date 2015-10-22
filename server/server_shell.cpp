@@ -9,6 +9,7 @@
 #include <string>
 
 #include "server_shell.h"
+#include "server_cli_handler_gen.h"
 
 using namespace std;
 
