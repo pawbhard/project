@@ -10,5 +10,5 @@ server_run: $(OBJ)
 	g++ -o $@ $^ -g -std=gnu++11 -pthread -I.
 
 clean:
-	rm *.o
+	rm $(OBJ)
 	rm server_run

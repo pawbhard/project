@@ -1,6 +1,110 @@
 
 #include "database_def.h"
 
+void DB::display_opcode_groups_all() {
+    unordered_map<int, set<int>>::iterator it;
+    
+    if( opcode_to_group.begin() == opcode_to_group.end())
+    {
+        cout << "No operations present"<<endl;
+        return;
+    }
+
+    for( it = opcode_to_group.begin(); it != opcode_to_group.end(); it++ )
+    {
+        cout << "\nOperation (opcode) : "<<it->first<<endl;
+        set<int> group_list = it->second;
+        set<int>::iterator itt;
+        
+        if( group_list.begin() != group_list.end() )
+            cout << "Groups : ";
+        else
+            cout << "No groups performing this Op" <<endl;
+        for ( itt = group_list.begin(); itt != group_list.end(); itt++ )
+        {
+            cout << *itt<<"\t";
+        }
+    }
+}
+
+void DB::display_opcode_groups(int opcode) {
+
+    unordered_map<int, set<int>>::iterator it;
+    set<int> group_list;
+
+    it =  opcode_to_group.find(opcode);
+    if(it != opcode_to_group.end())
+        group_list = it->second;
+    else 
+    {
+        cout << "Opcode Not found"<<endl;
+        return;
+    }
+
+    set<int>::iterator itt;
+    if( group_list.begin() != group_list.end() )
+        cout << "Groups : ";
+    else
+        cout << "No groups in the opcode" <<endl;
+    for ( itt = group_list.begin(); itt != group_list.end(); itt++ )
+    {
+        cout << *itt<<"\t";
+    }
+
+}
+void DB::display_group_clients(int group) {
+
+    unordered_map<int, set<int>>::iterator it;
+    set<int> client_list;
+
+    it =  group_to_client.find(group);
+    if(it != opcode_to_group.end())
+        client_list = it->second;
+    else 
+    {
+        cout << "Group Not found"<<endl;
+        return;
+    }
+
+    set<int>::iterator itt;
+    if( client_list.begin() != client_list.end() )
+        cout << "Clients : ";
+    else
+        cout << "No clients in the group" <<endl;
+    for ( itt = client_list.begin(); itt != client_list.end(); itt++ )
+    {
+        cout << *itt<<"\t";
+    }
+
+}
+
+void DB::display_group_clients_all() {
+    unordered_map<int, set<int>>::iterator it;
+    
+    if( group_to_client.begin() == group_to_client.end())
+    {
+        cout << "No groups present"<<endl;
+        return;
+    }
+
+    for( it = group_to_client.begin(); it != group_to_client.end(); it++ )
+    {
+        cout << "\nGroup ID : "<<it->first<<endl;
+        set<int> client_list = it->second;
+        set<int>::iterator itt;
+        
+        if( client_list.begin() != client_list.end() )
+            cout << "Clients : ";
+        else
+            cout << "No clients in the group" <<endl;
+        for ( itt = client_list.begin(); itt != client_list.end(); itt++ )
+        {
+            cout << *itt<<"\t";
+        }
+    }
+
+}
+
 int DB::add_new_client( int client_id, int opcode) {
     DATABASE_DEBUG("Adding mapping opcode %d to client_id %d",opcode,client_id);
     unordered_map<int, set<int>>::iterator it;

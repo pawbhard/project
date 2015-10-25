@@ -21,12 +21,13 @@ handler handle_get_capacity
 </cmd>
 
 <cmd>
-syntax show client-groups
-handler handle_get_client_groups
+syntax show group-clients { all|<int> }
+handler handle_show_group_clients
 </cmd>
 
 <cmd>
-syntax show client <int> group <int>
-handler my_handler2
+syntax show opcode-groups { all|<int> }
+handler handle_show_opcode_groups
 </cmd>
+
 

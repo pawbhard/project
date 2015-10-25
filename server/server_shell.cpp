@@ -8,10 +8,14 @@
 #include <fstream>
 #include <string>
 
+#include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
+
 #include "server_shell.h"
 #include "server_cli_handler_gen.h"
 
 using namespace std;
+using namespace boost;
 
 void trim_string(string &s, char *trim_chars) {
     s.erase(0, s.find_first_not_of(trim_chars));
@@ -150,11 +154,13 @@ bool parse_and_call_handler(string &input_cmd) {
                 //tokenize the command
                 istringstream file_iss(line);
                 istringstream input_iss(input_cmd);
+                bool option_match_done = false;
 
                 while ( file_iss && input_iss ){
 
                     string file_sub;
                     string input_sub;
+                    bool option_match = false;
 
                     file_iss >> file_sub;
                     input_iss >> input_sub;
@@ -174,16 +180,67 @@ bool parse_and_call_handler(string &input_cmd) {
                                 free_params(params);
                             }
                             continue;
-                        } else {
+                        } else if( file_sub.c_str()[0] == '{') {
+                            while( file_sub.c_str()[0] != '}') {
+                                file_iss >> file_sub;
+                                file_sub = trim(file_sub);
+
+                                if(!file_sub.length())
+                                    continue;
+
+                                char_separator<char> sep("|");
+                                tokenizer<char_separator<char>> tokens(file_sub, sep);
+                                BOOST_FOREACH(string t, tokens)
+                                {
+                                    if( t.c_str()[0] == '<' &&
+                                            t.c_str()[t.length()-1] == '>') {
+                                        char tmp_str[] = "<>";
+                                        trim_string(t, tmp_str);
+                                        if(t == "int")
+                                        {
+                                            bool isNumber = true;
+                                            for(string::const_iterator k = input_sub.begin(); k != input_sub.end(); ++k)
+                                                isNumber = isNumber && isdigit(*k);
+                                            if(isNumber)
+                                            {   
+                                                syntax_match = true;
+                                                option_match_done = true;
+                                            }
+                                        }
+                                        if(!add_cmd_params(t, id++, params,
+                                                    input_sub))
+                                        {
+                                            free_params(params);
+                                            params = NULL;
+                                        }
+                                        if( syntax_match == true )
+                                            break;
+                                    } else {
+                                        if( t == input_sub )
+                                        {
+                                            syntax_match = true;
+                                            option_match_done = true;
+                                            free_params(params);
+                                            params = NULL;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(option_match_done == true)
+                                    break;
+                            }
+                            if (syntax_match == false)
+                                break;
+                        }
+                        else {
                             syntax_match = false;
                             break;
                         }
                     }
-
                 } 
 
 
-                if( !file_iss && !input_iss )
+                if( (!file_iss && !input_iss) || (option_match_done == true && syntax_match == true) )
                     syntax_match = true;
                 else {
                     free_params(params);

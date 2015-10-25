@@ -56,5 +56,9 @@ class DB
               int get_free_group(int opcode);
               int delete_client(int client_id);
               int set_state(int group_id, bool state);
+              void display_group_clients_all();
+              void display_group_clients(int group);
+              void display_opcode_groups_all();
+              void display_opcode_groups(int opcode);
 };
 
