@@ -96,9 +96,9 @@ bool parse_and_call_handler(string &input_cmd) {
     cmd_params *params = NULL;
 
     int id = 0;
-    
+
     conf_file.open("server.cmds");
-    
+
     if(!conf_file.is_open())
         return false;
 
@@ -111,13 +111,13 @@ bool parse_and_call_handler(string &input_cmd) {
         if( cmd_start == false && line == "</cmd>")
         {
             cout << "Parsing cmdfile failed, got </cmd> before <cmd>";
-			free_params(params);
+            free_params(params);
             return false;
         }
         else if( cmd_start == true && line == "<cmd>")
         {
             cout << "Parsing cmdfile failed, got <cmd> before </cmd>";
-			free_params(params);
+            free_params(params);
             return false;
         }
 
@@ -133,127 +133,167 @@ bool parse_and_call_handler(string &input_cmd) {
 
 
         if ( cmd_start != true ) {
-			continue;
-		}
-            //syntax already matched 
-            if( syntax_match == true )
+            continue;
+        }
+        //syntax already matched 
+        if( syntax_match == true )
+        {
+            if(line.find("handler") == 0)
             {
-                if(line.find("handler") == 0)
-                {
-                    line.erase(0, strlen("handler"));
-                    line = trim(line);
-                    return find_fn_ptr(line, params);
-                }
-            }
-
-            //check syntax first
-            else if( syntax_match == false && line.find("syntax") == 0) {
-                line.erase(0, strlen("syntax"));
+                line.erase(0, strlen("handler"));
                 line = trim(line);
+                return find_fn_ptr(line, params);
+            }
+        }
 
-                //tokenize the command
-                istringstream file_iss(line);
-                istringstream input_iss(input_cmd);
-                bool option_match_done = false;
+        //check syntax first
+        else if( syntax_match == false && line.find("syntax") == 0) {
+            line.erase(0, strlen("syntax"));
+            line = trim(line);
 
-                while ( file_iss && input_iss ){
+            //tokenize the command
+            istringstream file_iss(line);
+            istringstream input_iss(input_cmd);
+            bool option_match_done = false;
 
-                    string file_sub;
-                    string input_sub;
-                    bool option_match = false;
+            while ( file_iss && input_iss ){
 
-                    file_iss >> file_sub;
-                    input_iss >> input_sub;
+                string file_sub;
+                string input_sub;
+                bool option_match = false;
 
-                    if(!input_sub.length() || !file_sub.length())
+                file_iss >> file_sub;
+                input_iss >> input_sub;
+
+                if(!input_sub.length() || !file_sub.length())
+                    continue;
+
+                if( input_sub != file_sub ) 
+                {
+                    if( file_sub.c_str()[0] == '<' &&
+                            file_sub.c_str()[file_sub.length()-1] == '>') {
+                        char tmp_str[] = "<>";
+                        trim_string(file_sub, tmp_str);
+                        if(!add_cmd_params(file_sub, id++, params,
+                                    input_sub))
+                        {
+                            free_params(params);
+                        }
                         continue;
+                    } else if( file_sub.c_str()[0] == '{') {
+                        while( file_sub.c_str()[0] != '}') {
+                            file_iss >> file_sub;
+                            file_sub = trim(file_sub);
 
-                    if( input_sub != file_sub ) 
-                    {
-                        if( file_sub.c_str()[0] == '<' &&
-                                file_sub.c_str()[file_sub.length()-1] == '>') {
-                            char tmp_str[] = "<>";
-                            trim_string(file_sub, tmp_str);
-                            if(!add_cmd_params(file_sub, id++, params,
-                                        input_sub))
+                            if(!file_sub.length())
+                                continue;
+
+                            char_separator<char> sep("|");
+                            tokenizer<char_separator<char>> tokens(file_sub, sep);
+                            BOOST_FOREACH(string t, tokens)
                             {
-                                free_params(params);
-                            }
-                            continue;
-                        } else if( file_sub.c_str()[0] == '{') {
-                            while( file_sub.c_str()[0] != '}') {
-                                file_iss >> file_sub;
-                                file_sub = trim(file_sub);
-
-                                if(!file_sub.length())
-                                    continue;
-
-                                char_separator<char> sep("|");
-                                tokenizer<char_separator<char>> tokens(file_sub, sep);
-                                BOOST_FOREACH(string t, tokens)
-                                {
-                                    if( t.c_str()[0] == '<' &&
-                                            t.c_str()[t.length()-1] == '>') {
-                                        char tmp_str[] = "<>";
-                                        trim_string(t, tmp_str);
-                                        if(t == "int")
-                                        {
-                                            bool isNumber = true;
-                                            for(string::const_iterator k = input_sub.begin(); k != input_sub.end(); ++k)
-                                                isNumber = isNumber && isdigit(*k);
-                                            if(isNumber)
-                                            {   
-                                                syntax_match = true;
-                                                option_match_done = true;
-                                            }
-                                        }
-                                        if(!add_cmd_params(t, id++, params,
-                                                    input_sub))
-                                        {
-                                            free_params(params);
-                                            params = NULL;
-                                        }
-                                        if( syntax_match == true )
-                                            break;
-                                    } else {
-                                        if( t == input_sub )
-                                        {
+                                if( t.c_str()[0] == '<' &&
+                                        t.c_str()[t.length()-1] == '>') {
+                                    char tmp_str[] = "<>";
+                                    trim_string(t, tmp_str);
+                                    if(t == "int")
+                                    {
+                                        bool isNumber = true;
+                                        for(string::const_iterator k = input_sub.begin(); k != input_sub.end(); ++k)
+                                            isNumber = isNumber && isdigit(*k);
+                                        if(isNumber)
+                                        {   
                                             syntax_match = true;
                                             option_match_done = true;
-                                            free_params(params);
-                                            params = NULL;
-                                            break;
                                         }
                                     }
+                                    if(!add_cmd_params(t, id++, params,
+                                                input_sub))
+                                    {
+                                        free_params(params);
+                                        params = NULL;
+                                    }
+                                    if( syntax_match == true )
+                                        break;
+                                } else {
+                                    if( t == input_sub )
+                                    {
+                                        syntax_match = true;
+                                        option_match_done = true;
+                                        free_params(params);
+                                        params = NULL;
+                                        break;
+                                    }
                                 }
-                                if(option_match_done == true)
-                                    break;
                             }
-                            if (syntax_match == false)
+                            if(option_match_done == true)
                                 break;
                         }
-                        else {
-                            syntax_match = false;
+                        if (syntax_match == false)
                             break;
-                        }
                     }
-                } 
-
-
-                if( (!file_iss && !input_iss) || (option_match_done == true && syntax_match == true) )
-                    syntax_match = true;
-                else {
-                    free_params(params);
-                    continue;
+                    else {
+                        syntax_match = false;
+                        break;
+                    }
                 }
+            } 
 
+
+            if( (!file_iss && !input_iss) || (option_match_done == true && syntax_match == true) )
+                syntax_match = true;
+            else {
+                free_params(params);
+                continue;
             }
-        
+
+        }
+
 
     }
 
     return false;
 }
+
+void show_commands(string type) {
+    ifstream conf_file;
+    string line;
+
+    conf_file.open("server.cmds");
+    
+    cout << "\nList of available commands :"<<endl;
+
+    while(getline( conf_file, line)){
+        line = trim(line);
+
+        if(line.find("syntax") == 0) {
+            line.erase(0, strlen("syntax"));
+            line = trim(line);
+            if( type == "set help")
+            {
+                if (line.find("set") == 0) {
+                    cout << line <<endl;
+                }
+            } 
+            else if( type == "show help" )
+            {
+                if (line.find("show") == 0) {
+                    cout<< line<<endl;
+                }
+            } else if ( type== "debug help" )
+            {
+                if(line.find("debug") == 0) {
+                    cout << line<<endl;
+                }
+            }
+            else {
+                cout << line <<endl;
+            }
+        }
+    }
+    cout <<endl;
+}
+
 
 bool handle_command(string &input_cmd) {
     
@@ -282,9 +322,12 @@ void run_shell()
         if(!buf.length())
             continue;
 
-        if (buf == "exit") {
+        if (buf == "exit" || buf == "quit") {
             cout << "\nExiting Server\n";
             exit(0);
+        }
+        else if (buf == "help" || buf == "set help" || buf == "show help" || buf == "debug help") {
+            show_commands(buf);
         }
         else {
             if( handle_command(buf) == false ) {

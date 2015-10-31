@@ -4,6 +4,7 @@
 #include "server_shell.h"
 #include "server_config.h"
 #include "database_def.h"
+#include "server_header.h"
 
 using namespace std;
 
@@ -73,4 +74,14 @@ void handle_show_opcode_groups(cmd_params *params)
     free_params(params);
 }
 
+void handle_show_num_clients(cmd_params *params)
+{
+    connection *con = connection::get_instance();
+    cout << "Number of clients :"<<con->get_number_of_clients()<<endl;
+    free_params(params);
+}
 
+void handle_set_debug_level(cmd_params *params) 
+{
+    free_params(params);
+}
