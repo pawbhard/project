@@ -17,8 +17,7 @@ int main() {
     databuf *d;
     init_buffer(CAPACITY,&d);
     
-    /* TBD filldata has to be threaded to accomodate shell */
-//    filldata(d);
+    //std::thread data(filldata,d);
 
     run_shell();
     return 0;

@@ -56,7 +56,7 @@ void free_params(cmd_params * &params )
 
 bool add_cmd_params(string type, int id, cmd_params * &params, string val) {
 
-    if( type != "int" && type != "str")
+    if( type != "int" && type != "str" && type != "var")
         return false;
     
     cmd_params *tmp = (cmd_params *) malloc(sizeof(cmd_params));
@@ -81,6 +81,7 @@ bool find_fn_ptr(string line, cmd_params * &params) {
         if(line == fn_tbl[i].key)
         {
             (*(fn_tbl[i].fn))(params);
+            free_params(params);
             return true;
         }
     }
@@ -222,6 +223,13 @@ bool parse_and_call_handler(string &input_cmd) {
                                         option_match_done = true;
                                         free_params(params);
                                         params = NULL;
+                                        if(!add_cmd_params("var", id++, params,
+                                                input_sub))
+                                        {
+                                            free_params(params);
+                                            params = NULL;
+                                        }
+                                    
                                         break;
                                     }
                                 }
