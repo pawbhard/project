@@ -32,6 +32,7 @@ int  cal_range(std::vector<float> vec, float *max,float *min) {
     for (it=vec.begin(); it<vec.end(); it++) {
         if(*min > *it) *min = *it;
         if(*max < *it) *max = *it;
+	sleep(10);
     }
     std::cout<<"Doing range "<<*max<<" "<<*min<<" \n"; 
 //    sleep(1);
