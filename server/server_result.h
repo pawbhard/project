@@ -25,4 +25,5 @@ class Result {
     float get_mean() { return mean_final; }
     int get_mean_elements() { return mean_elements; }
     void update_range(float min_new, float max_new);
+    void get_range(float &min, float &max) { min = min_final; max = max_final; }
 };
