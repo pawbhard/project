@@ -3,8 +3,6 @@
 #include<iostream>
 #include<netinet/in.h>
 #include <list>
-#define DATABASE_ERROR(format,args...) printf("DATABASE ERROR %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
-#define DATABASE_DEBUG(format,args...) printf("DATABASE DEBUG %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
 
 #define FAILURE 0
 #define SUCCESS 1
@@ -31,7 +29,7 @@ class track_data {
         
         track_data()
         {
-            DATABASE_DEBUG("Created Object of track_data");
+            //DEBUG("Created Object of track_data");
         }
 
         static track_data *td;

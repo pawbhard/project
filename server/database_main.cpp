@@ -106,7 +106,7 @@ void DB::display_group_clients_all() {
 }
 
 int DB::add_new_client( int client_id, int opcode) {
-    DATABASE_DEBUG("Adding mapping opcode %d to client_id %d",opcode,client_id);
+    DEBUG("Adding mapping opcode %d to client_id %d",opcode,client_id);
     unordered_map<int, set<int>>::iterator it;
     set<int> group_list;
     it =  opcode_to_group.find(opcode);
@@ -116,7 +116,7 @@ int DB::add_new_client( int client_id, int opcode) {
     
     lock_guard<mutex> lk(mut);
     if(group_list.size() == 0) {
-        DATABASE_DEBUG("No groups for this opcode . Creating new");
+        DEBUG("No groups for this opcode . Creating new");
         int gp_id = get_group_counter(1);
         
         set<int> cl;
@@ -140,14 +140,14 @@ int DB::add_new_client( int client_id, int opcode) {
         it3 = group_to_client.find(*itt);
         if(it3 == group_to_client.end()) assert(0);
         if(it3->second.size() != 5) {  //group is not full
-            DATABASE_DEBUG("Group not full adding one more");
+            DEBUG("Group not full adding one more");
             it3->second.insert(client_id);
             return SUCCESS;
         } else {
-            DATABASE_DEBUG("This group is full checking next");
+            DEBUG("This group is full checking next");
         }
     }    
-    DATABASE_DEBUG("No free group  Creating new");
+    DEBUG("No free group  Creating new");
     int gp_id = get_group_counter(1);
 
     set<int> cl;
@@ -166,7 +166,7 @@ set<int> DB::get_client_list(int group_id) {
     set<int> cl_list;
     it = group_to_client.find(group_id);
     if(it == group_to_client.end()) {
-        DATABASE_DEBUG("NO known group");
+        DEBUG("NO known group");
         return cl_list;
     }
     
@@ -175,11 +175,11 @@ set<int> DB::get_client_list(int group_id) {
 }
 
 int DB::get_free_group(int opcode) {
-    DATABASE_DEBUG("getting free group for opcode %d",opcode);
+    DEBUG("getting free group for opcode %d",opcode);
     unordered_map<int, set<int>>::iterator it;
     it = opcode_to_group.find(opcode);
     if(it == opcode_to_group.end()) {
-        DATABASE_DEBUG("No Group found");
+        DEBUG("No Group found");
         return -1;
     }
     lock_guard<mutex> lk(mut);
@@ -190,7 +190,7 @@ int DB::get_free_group(int opcode) {
             return *it1;
         }
     }
-    DATABASE_DEBUG("No free group");
+    DEBUG("No free group");
     return -1;
 }
 
@@ -205,15 +205,15 @@ bool DB::is_free(int group_id) {
 int DB::delete_client(int client_id) {
 
     //find all group for this client and remove from all places
-    DATABASE_DEBUG("Got request for deleting client %d",client_id);
+    DEBUG("Got request for deleting client %d",client_id);
     unordered_map<int, set<int>>::iterator it;
     set<int>::iterator it1;
     lock_guard<mutex> lk(mut);
     for(it = group_to_client.begin(); it!= group_to_client.end();it++) {
-        DATABASE_DEBUG("Searching in group %d",it->first);
+        DEBUG("Searching in group %d",it->first);
         it1 = it->second.find(client_id);
         if(it1 != it->second.end()) {
-            DATABASE_DEBUG("Client found deleting");
+            DEBUG("Client found deleting");
             it->second.erase(it1);
         }
     }
@@ -223,7 +223,7 @@ int DB::set_state(int group_id, bool state) {
     unordered_map<int , bool>::iterator it;
     it = group_state.find(group_id);
     if(it == group_state.end()) {
-        DATABASE_DEBUG("Group not found");
+        DEBUG("Group not found");
         return FAILURE;
     }
     it->second = state;

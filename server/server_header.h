@@ -19,20 +19,10 @@
 #include "server_config.h"
 #include "server_tracker.h"
 #include "timer.h"
+//#include "server_logging.h"
 
 #define SERVER_PORT 1234
 #define MAX_CLIENTS get_max_clients()
-#define DEBUG_ENABLE
-#ifdef DEBUG_ENABLE
-
-#define ERROR(format,args...) printf("ERROR %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
-
-#define DEBUG(format,args...) printf("DEBUG %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
-
-#else
-#define ERROR(format,args...) printf(" ")
-#define DEBUG(format,args...) printf(" ")
-#endif
 
 class connection {
     int sock;              //socket to use

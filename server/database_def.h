@@ -8,16 +8,7 @@
 #include<mutex>
 
 #include "server_constants.h"
-#define DEBUG_ENABLE
-#ifdef DEBUG_ENABLE
-
-#define DATABASE_ERROR(format,args...) printf("DATABASE ERROR %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
-#define DATABASE_DEBUG(format,args...) printf("DATABASE DEBUG %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
-
-#else
-#define DATABASE_ERROR(format,args...) printf(" ")
-#define DATABASE_DEBUG(format,args...) printf(" ")
-#endif
+#include "server_logging.h"
 
 using namespace std;
 
@@ -37,7 +28,7 @@ class DB
               }
               DB()
               {
-                  DATABASE_DEBUG("Created Object of database");
+                  DEBUG("Created Object of database");
               }
 
               static DB *db;
