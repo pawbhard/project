@@ -21,8 +21,10 @@ void handle_results(int client_id, int *buffer, float *elements) {
     // 1. delete tracking info of this request
     // 2. Update results according to opcode
 
+    track_data *td = track_data::get_instance();
+    //delete tracking
+    td->delete_track (buffer[0], client_id);
 
-    //TODO delete tracking
     DEBUG("handling results %f %f",elements[0],elements[1]);
     DB *db = DB::get_instance();
     db->set_state(1,true);
