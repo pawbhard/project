@@ -75,6 +75,8 @@ void distribute_data(void *arg)
     // 6. start a timer for task_id
     
     DB *db = DB::get_instance();
+    track_data *td = track_data::get_instance();
+
     int i , opcode;
     for ( i = 0; i < MAX_TASK ; i++ ) {
         switch(i) {
@@ -105,6 +107,14 @@ void distribute_data(void *arg)
         int cap = d->capacity;
         int per_client = ceil((float)cap/(float)no_of_clients);
         set<int>::iterator it;
+
+        // Storing mapping of task_id and group_id with buffer pointer
+        td->set_group_task_map (task_id, group_id, arg);
+
+        timer *t1;
+        t1 = new timer(task_id, 100, handle_timer);
+        t1->start();
+       
         for(it = client_list.begin() ; it != client_list.end(); ++it)
         {
             if(cap <= 0) break;
@@ -115,7 +125,10 @@ void distribute_data(void *arg)
                 std::cout<<"MAlloc failed";
                 exit(EXIT_FAILURE);
             }
-                                                    //TODO Tracking of data
+
+            //Tracking of data
+            td->set_track(task_id-1, *it, (d->capacity - cap), ((d->capacity - cap)+ size_data));
+
             //copy and send data 
             memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
             //copy both 
@@ -131,6 +144,7 @@ void distribute_data(void *arg)
             arr = NULL;
         }
         DEBUG("Send complete");
+
     }
 #if 0
     //1. find no of clients 
@@ -171,9 +185,32 @@ void distribute_data(void *arg)
     }
     DEBUG("Send complete");
 #endif
-    free_buffer(&d);
+    //free_buffer(&d);
 }
 
+void handle_timer(sigval s)
+{
+  track_data *td = track_data::get_instance();
+//   int client_id;
+//   int start;
+//   int end;
+//   int ret_val;
+//   int *arr;
+//   int put;
+
+   DEBUG ("Timer fired for task id : %d", s.sival_int);
+
+   list<int> cl = td->get_clients_from_track(s.sival_int);
+
+   DEBUG("Clients in the list");
+   for(list<int>::iterator it = cl.begin(); it != cl.end(); ++it) {
+   DEBUG("*it");
+
+   td->release_group(s.sival_int);
+   }
+// TODO : Send back data once again to the client in list cl
+
+}
 
 
 

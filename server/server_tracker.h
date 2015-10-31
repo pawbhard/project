@@ -2,7 +2,6 @@
 #include<cstdio>
 #include<iostream>
 #include<netinet/in.h>
-//#include<stdlib.h>
 #include <list>
 #define DATABASE_ERROR(format,args...) printf("DATABASE ERROR %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
 #define DATABASE_DEBUG(format,args...) printf("DATABASE DEBUG %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
@@ -18,11 +17,18 @@ typedef struct {
     int end;
 } position;
 
+typedef struct {
+    int grp_id;
+    struct databuf *buf_ptr;
+} buffer;
+
 class track_data {
     private :
         unordered_map <int, list <position> > track;
-        unordered_map < int, int > group_task_map;
-	unordered_map < int, int> group_status; 
+        unordered_map < int, buffer > group_task_map;
+	unordered_map < int, int> group_status;
+        list <position> client_list;
+        
         track_data()
         {
             DATABASE_DEBUG("Created Object of track_data");
@@ -39,10 +45,10 @@ class track_data {
             return td;
         }   
         int set_track(int task_id, int client_id, int s, int e);
-        int set_group_task_map (int task_id , int group_id); 
-        int delete_track(int task_id, int *client_id);
+        int set_group_task_map (int task_id , int group_id, void *arg); 
+        int delete_track(int task_id, int client_id);
         int delete_all_track(int task_id);
-        void release_group (int task_id);
-         
+        int release_group (int task_id);
+        list<int> get_clients_from_track(int task_id); 
 };
 

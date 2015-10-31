@@ -17,6 +17,8 @@
 #include"server_result.h"
 #include "server_constants.h"
 #include "server_config.h"
+#include "server_tracker.h"
+#include "timer.h"
 
 #define SERVER_PORT 1234
 #define MAX_CLIENTS get_max_clients()
@@ -77,4 +79,4 @@ void distribute_data(void *arg);
 void free_buffer(databuf **d);
 void handle_results(int client_id, int *buffer, float *element);
 void handle_join(int client_id, int *buffer);
-
+void handle_timer(sigval);

@@ -4,6 +4,7 @@
 connection* connection::cco = NULL;
 Result *Result::result = NULL;
 DB *DB::db = NULL;
+track_data *track_data::td = NULL;
 #define CAPACITY get_capacity()
 int main() {
 
