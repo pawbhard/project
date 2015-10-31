@@ -36,7 +36,8 @@ void filldata(databuf *dbuf) {
     int pos = 0;
     while(1) {
         ar = (float *) dbuf->data;
-        usleep(1);
+        //usleep(1000);
+        sleep(1);
         random_integer = uni(rng);
         //DEBUG("Got temprature from snmp %d",random_integer);
         ar[pos] = (float) random_integer;

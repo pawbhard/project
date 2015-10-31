@@ -11,6 +11,7 @@
 #include<thread>
 #include<vector>
 #include<unistd.h>
+#include<limits.h>
 
 #define TRUE   1
 #define FALSE  0
@@ -23,14 +24,26 @@
 void receiver(int sock);
 void  task_perform(int sock, std::vector<float> vec, int task, int id);
 int  cal_mean(std::vector<float> vec);
-
+int  cal_range(std::vector<float> vec, float *max,float *min);
+int  cal_range(std::vector<float> vec, float *max,float *min) { 
+    std::vector<float>::iterator it;
+    *min = INT_MAX;
+    *max = INT_MIN;
+    for (it=vec.begin(); it<vec.end(); it++) {
+        if(*min > *it) *min = *it;
+        if(*max < *it) *max = *it;
+    }
+    std::cout<<"Doing range "<<*max<<" "<<*min<<" \n"; 
+//    sleep(1);
+    return 1;
+}
 int cal_mean(std::vector<float> vec) {
     std::vector<float>::iterator it;
     float result = 0;
     for (it=vec.begin(); it<vec.end(); it++)
         result += *it;
     std::cout<<"Mean calculated "<<result/vec.size()<<"\n";
-    sleep(1);
+ //   sleep(1);
     return result/vec.size();
 }
 
@@ -41,11 +54,12 @@ void task_perform(int sock, std::vector<float> vec, int task,int id) {
     for (it=vec.begin(); it<vec.end(); it++)
         std::cout << ' ' << *it;
     std::cout << '\n';*/
-    float result = 0;
+    float min,max,result = 0;
     switch (task) {
         case MEAN: result = cal_mean(vec);
                    break;
-
+        case RANGE: cal_range(vec,&min,&max);  
+                   break;
         default : std::cout<<"Unknown task\n";
     }
 
@@ -53,8 +67,9 @@ void task_perform(int sock, std::vector<float> vec, int task,int id) {
     //send data back to server
     //format [ task_id opcode Number] [Number_mean Mean]
     int task_id = id;
-    int send_ar[] = { task_id, MEAN, 2 };
-    float send_ar2[] = { (float) vec.size(), result };
+    int send_ar[] = { task_id, RANGE, 2 };
+    //float send_ar2[] = { (float) vec.size(), result };
+    float send_ar2[]  =  { min, max };
     std::cout<<"\nSending array " << send_ar[0] <<" "<<send_ar[1] <<" "
             <<send_ar[2] <<" size is "<<sizeof(send_ar)<<"\n";
     std::cout<<"Sending result "<<send_ar2[0]<<" "<<send_ar2[1]<<"\n";
@@ -91,7 +106,7 @@ void receiver(int sock) {
             //create a vector and pass it by value
             std::vector<float> vec;
             vec.insert(vec.begin(),elements,elements+buf[2]);
-            std::thread t (task_perform,sock,vec,MEAN,buf[0]);
+            std::thread t (task_perform,sock,vec,RANGE,buf[0]);
             t.join();
         } else if(rec <= 0) { 
             std::cout<<"No server exitting ,.....\n";
@@ -117,18 +132,19 @@ int main(int argc, char *argv[])
 
     //connect
     connect(sock, (struct sockaddr *) &address, sizeof(address));
-    
+    int group_id; 
     memset(buffer,0,sizeof(buffer));
     int rc = read(sock,buffer,1024);
     std::cout<<"received bytes "<<rc<<"\n";
     std::cout<<"Message Received : " << buffer<<"\n";
     memset(buffer,0,sizeof(buffer));
-
+    std::cout<<"Enter Group to join ";
+    std::cin>>group_id;
     //send join request
     buf[0] = 0;
-    buf[1] = MEAN; //for MEAN
+    buf[1] = group_id; //for MEAN
     buf[2] = 0;
-    std::cout<<"Joined group Mean\n";
+    std::cout<<"Joined group "<<group_id<<"\n";
     //strcpy(buffer,"Mean");
     int wr = write(sock,buf,sizeof(buf));
     std::cout<<"Written bytes "<<wr<<"\n";
