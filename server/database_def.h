@@ -11,8 +11,8 @@
 #define DEBUG_ENABLE
 #ifdef DEBUG_ENABLE
 
-#define DATABASE_ERROR(format,args...) printf("DATABASE ERROR %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
-#define DATABASE_DEBUG(format,args...) printf("DATABASE DEBUG %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
+#define DATABASE_ERROR(format,args...) //printf("DATABASE ERROR %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
+#define DATABASE_DEBUG(format,args...) //printf("DATABASE DEBUG %s(%d): " format "\n" ,__FUNCTION__,__LINE__,##args)
 
 #else
 #define DATABASE_ERROR(format,args...) printf(" ")

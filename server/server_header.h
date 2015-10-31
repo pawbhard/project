@@ -23,9 +23,9 @@
 #define DEBUG_ENABLE
 #ifdef DEBUG_ENABLE
 
-#define ERROR(format,args...) printf("ERROR %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
+#define ERROR(format,args...) //printf("ERROR %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
 
-#define DEBUG(format,args...) printf("DEBUG %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
+#define DEBUG(format,args...) //printf("DEBUG %s(%d): " format "\n" ,          __FUNCTION__,__LINE__,##args)
 
 #else
 #define ERROR(format,args...) printf(" ")

@@ -18,8 +18,9 @@ int main() {
     init_buffer(CAPACITY,&d);
     
     /* TBD filldata has to be threaded to accomodate shell */
-//    filldata(d);
-
+    std::thread fil(filldata,d);
+    
     run_shell();
+    fil.join();
     return 0;
 }
