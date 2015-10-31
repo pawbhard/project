@@ -110,10 +110,10 @@ void distribute_data(void *arg)
         set<int>::iterator it;
 
         // Storing mapping of task_id and group_id with buffer pointer
-        td->set_group_task_map (task_id, group_id, arg);
+        td->set_group_task_map (task_id-1, group_id, arg);
 
         timer *t1;
-        t1 = new timer(task_id, 100, handle_timer);
+        t1 = new timer(task_id, 10, handle_timer);
         t1->start();
        
         for(it = client_list.begin() ; it != client_list.end(); ++it)
@@ -207,7 +207,8 @@ void handle_timer(sigval s)
    for(list<int>::iterator it = cl.begin(); it != cl.end(); ++it) {
    DEBUG("*it");
 
-   td->release_group(s.sival_int);
+   DEBUG("task_id : %d",s.sival_int);   
+   td->release_group(s.sival_int-1);
    }
 // TODO : Send back data once again to the client in list cl
 
