@@ -10,5 +10,4 @@
 #define RANGE 1
 
 #define MAX_TASK 2
-
-
+#define NUM_OF_OPCODES 2

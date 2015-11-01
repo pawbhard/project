@@ -21,10 +21,11 @@ void init_buffer(int cap, databuf **d, int sw_id) {
 }
 
 void filldata(databuf *dbuf, int sw_id) {
-    
+
+    Consume *cs = Consume::get_instance();    
     init_buffer(CAPACITY,&dbuf,sw_id);
     //Create thread pool for distrubute 
-    thread_pool t;
+//    thread_pool t;
 
     int random_integer,minn =  20,maxx = 70;
     //For now generate random integer
@@ -51,7 +52,10 @@ void filldata(databuf *dbuf, int sw_id) {
             dbuf = NULL;
             init_buffer(temp->capacity, &dbuf,sw_id);
             pos = 0;
-            t.submit(distribute_data,(void *) temp);
+//            t.submit(distribute_data,(void *) temp);
+            for(int i = 0; i <= NUM_OF_OPCODES; i++) {
+               cs->insert_data(i, temp);
+            }
         }
     }
 }
@@ -220,4 +224,75 @@ void handle_timer(sigval s)
 
 
 
+void distribute_new(int opcode, int group_id, databuf *d)
+{
+    //Steps 
+    // 1. get all task iterate on them 
+    // 2. for each get one free group 
+    // 3. get all clients for that group 
+    // 4. construct and send data to client
+    // 5. track data sent 
+    // 6. start a timer for task_id
+    
+    DB *db = DB::get_instance();
+    track_data *td = track_data::get_instance();
 
+        set<int> client_list = db->get_client_list(group_id);
+        if(client_list.size() == 0) {
+            DEBUG("No clients free ignoring data for opcode %d",opcode);
+            continue;
+            //free_buffer(&d);
+            //return;
+        }
+        db->set_state(group_id, false);
+
+        int size_data,put;
+        int no_of_clients = client_list.size();
+        int buf[3];
+        buf[0] = (task_id<<2) | (sw_id & 0x3); 
+        buf[1] = opcode; //opcode from loop 
+        float *arr = NULL;
+        float *data = (float *) d->data;
+        int cap = d->capacity;
+        int per_client = ceil((float)cap/(float)no_of_clients);
+        set<int>::iterator it;
+
+        // Storing mapping of task_id and group_id with buffer pointer
+        td->set_group_task_map (task_id, group_id, arg);
+
+        timer *t1;
+        t1 = new timer(task_id, 10, handle_timer);
+        t1->start();
+       
+        for(it = client_list.begin() ; it != client_list.end(); ++it)
+        {
+            if(cap <= 0) break;
+            size_data = cap > per_client ? per_client : cap;
+            buf[2] = size_data; //set third parameter
+            arr = new float[size_data];//in first sending no of element
+            if(arr == NULL) {
+                std::cout<<"MAlloc failed";
+                exit(EXIT_FAILURE);
+            }
+
+            //Tracking of data
+            td->set_track(task_id, *it, (d->capacity - cap), ((d->capacity - cap)+ size_data));
+
+            //copy and send data 
+            memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
+            //copy both 
+            char buffer[1000]; //to send data
+            memcpy(buffer,buf,sizeof(int)*3);
+            memcpy(buffer+sizeof(int)*3,arr,sizeof(float)*size_data);
+            int total_size = sizeof(int) * 3 + sizeof(float)*size_data;
+            put = sock_puts(*it, (void *) buffer, total_size);
+            assert(put == total_size);
+            DEBUG("Sending %d data to %d",put,*it);
+            cap -= size_data;
+            free(arr);
+            arr = NULL;
+        }
+        DEBUG("Send complete");
+        d->refcnt++;
+        task_id++;
+}
