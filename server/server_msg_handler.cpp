@@ -23,7 +23,9 @@ void handle_results(int client_id, int *buffer, float *elements) {
 
     track_data *td = track_data::get_instance();
     //delete tracking
-    td->delete_track (buffer[0], client_id);
+    int task_id = buffer[0]>>2;
+    int sw_id = buffer[0] & 0x3;
+    td->delete_track (task_id, client_id);
 
     DEBUG("handling results %f %f",elements[0],elements[1]);
     DB *db = DB::get_instance();
@@ -31,9 +33,9 @@ void handle_results(int client_id, int *buffer, float *elements) {
     int opcode = buffer[1];
     Result *r = Result::get_instance();
     if(opcode == MEAN)
-        r->update_mean((int)elements[0] , elements[1]);
+        r->update_mean((int)elements[0] , elements[1], sw_id /* switch id */);
     else if(opcode == RANGE)
-        r->update_range(elements[0], elements[1]);
+        r->update_range(elements[0], elements[1], sw_id /* switch id */);
     else {
         DEBUG("Unkown result encountered ");
         //assert(0);

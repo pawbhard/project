@@ -2,24 +2,33 @@
 #include "server_header.h"
 #include "database_def.h"
 
+#define CS 2
+
 void run_shell(void);
 
 connection* connection::cco = NULL;
 Result *Result::result = NULL;
 DB *DB::db = NULL;
 track_data *track_data::td = NULL;
-#define CAPACITY get_capacity()
 
 
 int main() {
-
+    
+    std::vector<std::thread *> filpool;
     connection *conn = connection::get_instance() ;
     std::thread con(run_connection,conn);
     databuf *d;
-    init_buffer(CAPACITY,&d);
     
-    std::thread fil(filldata,d);
+    for(int i = 0 ; i < CS ; i++) {
+        filpool.push_back(new std::thread(filldata,d,i)); //i is sw_id
+    }
+    //std::thread fil(filldata,d);
     run_shell();
-    fil.join();
+
+    for (int i = 0; i < CS; ++i){
+        filpool[i]->join();
+        delete filpool[i];
+    }
+
     return 0;
 }
