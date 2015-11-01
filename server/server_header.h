@@ -12,6 +12,7 @@
 #include<queue>
 #include<memory>
 #include<mutex>
+#include<condition_variable>
 
 #include"socket_util.h"
 #include"server_result.h"
@@ -19,6 +20,7 @@
 #include "server_config.h"
 #include "server_tracker.h"
 #include "timer.h"
+
 #include "server_queue.h"
 
 #define SERVER_PORT 1234
@@ -72,3 +74,8 @@ void free_buffer(databuf **d);
 void handle_results(int client_id, int *buffer, float *element);
 void handle_join(int client_id, int *buffer);
 void handle_timer(sigval);
+void distribute_new(int opcode, int grp_id, databuf *d);
+
+
+
+

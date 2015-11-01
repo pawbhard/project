@@ -23,6 +23,7 @@ void init_buffer(int cap, databuf **d, int sw_id) {
 void filldata(databuf *dbuf, int sw_id) {
 
     Consume *cs = Consume::get_instance();    
+    cs->spawn();
     init_buffer(CAPACITY,&dbuf,sw_id);
     //Create thread pool for distrubute 
 //    thread_pool t;
@@ -53,7 +54,7 @@ void filldata(databuf *dbuf, int sw_id) {
             init_buffer(temp->capacity, &dbuf,sw_id);
             pos = 0;
 //            t.submit(distribute_data,(void *) temp);
-            for(int i = 0; i <= NUM_OF_OPCODES; i++) {
+            for(int i = 0; i < NUM_OF_OPCODES; i++) {
                cs->insert_data(i, temp);
             }
         }
@@ -61,6 +62,8 @@ void filldata(databuf *dbuf, int sw_id) {
 }
 
 void free_buffer(databuf **d) {
+    DEBUG("Buffer getting freed");
+    std::cout<<"\nBuffer freed \n";
     if((*d)!= NULL) {
         if((*d)->data != NULL) {
             free((*d)->data);
@@ -237,12 +240,13 @@ void distribute_new(int opcode, int group_id, databuf *d)
     DB *db = DB::get_instance();
     track_data *td = track_data::get_instance();
 
+    int sw_id = d->sw_id; //switch id 
         set<int> client_list = db->get_client_list(group_id);
         if(client_list.size() == 0) {
             DEBUG("No clients free ignoring data for opcode %d",opcode);
-            continue;
-            //free_buffer(&d);
-            //return;
+            assert(0);
+            free_buffer(&d);
+            return;
         }
         db->set_state(group_id, false);
 
@@ -258,7 +262,7 @@ void distribute_new(int opcode, int group_id, databuf *d)
         set<int>::iterator it;
 
         // Storing mapping of task_id and group_id with buffer pointer
-        td->set_group_task_map (task_id, group_id, arg);
+        td->set_group_task_map (task_id, group_id, d);
 
         timer *t1;
         t1 = new timer(task_id, 10, handle_timer);
