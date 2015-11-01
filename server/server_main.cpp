@@ -10,7 +10,7 @@ connection* connection::cco = NULL;
 Result *Result::result = NULL;
 DB *DB::db = NULL;
 track_data *track_data::td = NULL;
-
+Consume *Consume::cs = NULL;
 
 int main() {
     

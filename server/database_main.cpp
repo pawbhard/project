@@ -106,6 +106,7 @@ void DB::display_group_clients_all() {
 }
 
 int DB::add_new_client( int client_id, int opcode) {
+    Consume *cs = Consume::get_instance();
     DEBUG("Adding mapping opcode %d to client_id %d",opcode,client_id);
     unordered_map<int, set<int>>::iterator it;
     set<int> group_list;
@@ -118,6 +119,7 @@ int DB::add_new_client( int client_id, int opcode) {
     if(group_list.size() == 0) {
         DEBUG("No groups for this opcode . Creating new");
         int gp_id = get_group_counter(1);
+        cs->insert_free_grp(opcode, gp_id);
         
         set<int> cl;
         cl.insert(client_id);
@@ -220,6 +222,7 @@ int DB::delete_client(int client_id) {
 }
 
 int DB::set_state(int group_id, bool state) {
+    Consume *cs = Consume::get_instance();
     unordered_map<int , bool>::iterator it;
     it = group_state.find(group_id);
     if(it == group_state.end()) {
@@ -227,5 +230,23 @@ int DB::set_state(int group_id, bool state) {
         return FAILURE;
     }
     it->second = state;
+
+    int opcode = find_opcode_from_grp(group_id);
+    if (state == true)
+    {
+        cs->insert_free_grp(opcode, group_id);
+    }
     return SUCCESS;
+}
+
+int DB::find_opcode_from_grp(int grp_id) {
+    unordered_map<int, set<int>>::iterator it;
+    set<int>::iterator it1;
+    for(it = opcode_to_group.begin(); it!= opcode_to_group.end();it++) {
+        DEBUG("Searching in opcode %d",it->first);
+        it1 = it->second.find(grp_id);
+        if(it1 != it->second.end()) {
+           return it->first;
+        }
+    }
 }

@@ -51,5 +51,6 @@ class DB
               void display_group_clients(int group);
               void display_opcode_groups_all();
               void display_opcode_groups(int opcode);
+              int find_opcode_from_grp(int grp_id);
 };
 

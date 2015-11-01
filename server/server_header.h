@@ -19,7 +19,7 @@
 #include "server_config.h"
 #include "server_tracker.h"
 #include "timer.h"
-//#include "server_logging.h"
+#include "server_queue.h"
 
 #define SERVER_PORT 1234
 #define MAX_CLIENTS get_max_clients()
