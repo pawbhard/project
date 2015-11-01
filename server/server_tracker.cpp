@@ -98,7 +98,9 @@ int track_data::release_group(int task_id) {
         group_status[group_id] = 0;
         DEBUG("Freed Group_id : %d", group_id);
         db->set_state(group_id, true);
-        free_buffer(&d);
+        d->refcnt--;
+        if(d->refcnt <= 0)
+            free_buffer(&d);
 }     
 
 /*

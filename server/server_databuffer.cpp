@@ -4,13 +4,15 @@
 
 using namespace std;
 static int task_id = 1;
-void init_buffer(int cap, databuf **d) {
+void init_buffer(int cap, databuf **d, int sw_id) {
     (*d) = new databuf;
     if(!*d) {
         std::cout<<"Malloc failed ";
         exit(EXIT_FAILURE);
     }
     (*d)->capacity = cap;
+    (*d)->sw_id    = sw_id;
+    (*d)->refcnt = 0;
     (*d)->data = new int[cap];
     if((*d)->data == NULL) {
         std::cout<<"Malloc failed";
@@ -18,8 +20,9 @@ void init_buffer(int cap, databuf **d) {
     }
 }
 
-void filldata(databuf *dbuf) {
-
+void filldata(databuf *dbuf, int sw_id) {
+    
+    init_buffer(CAPACITY,&dbuf,sw_id);
     //Create thread pool for distrubute 
     thread_pool t;
 
@@ -46,7 +49,7 @@ void filldata(databuf *dbuf) {
             //buffer is full send this to some one and create new 
             databuf *temp = dbuf;
             dbuf = NULL;
-            init_buffer(temp->capacity, &dbuf);
+            init_buffer(temp->capacity, &dbuf,sw_id);
             pos = 0;
             t.submit(distribute_data,(void *) temp);
         }
@@ -65,8 +68,8 @@ void free_buffer(databuf **d) {
 
 void distribute_data(void *arg)
 {
-
     databuf *d = (databuf *) arg;
+    int sw_id = d->sw_id; //switch id 
     //Steps 
     // 1. get all task iterate on them 
     // 2. for each get one free group 
@@ -101,7 +104,7 @@ void distribute_data(void *arg)
         int size_data,put;
         int no_of_clients = client_list.size();
         int buf[3];
-        buf[0] = task_id; task_id++;
+        buf[0] = (task_id<<2) | (sw_id & 0x3); 
         buf[1] = i; //opcode from loop 
         float *arr = NULL;
         float *data = (float *) d->data;
@@ -110,7 +113,7 @@ void distribute_data(void *arg)
         set<int>::iterator it;
 
         // Storing mapping of task_id and group_id with buffer pointer
-        td->set_group_task_map (task_id-1, group_id, arg);
+        td->set_group_task_map (task_id, group_id, arg);
 
         timer *t1;
         t1 = new timer(task_id, 10, handle_timer);
@@ -128,7 +131,7 @@ void distribute_data(void *arg)
             }
 
             //Tracking of data
-            td->set_track(task_id-1, *it, (d->capacity - cap), ((d->capacity - cap)+ size_data));
+            td->set_track(task_id, *it, (d->capacity - cap), ((d->capacity - cap)+ size_data));
 
             //copy and send data 
             memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
@@ -145,7 +148,8 @@ void distribute_data(void *arg)
             arr = NULL;
         }
         DEBUG("Send complete");
-
+        d->refcnt++;
+        task_id++;
     }
 #if 0
     //1. find no of clients 

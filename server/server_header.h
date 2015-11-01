@@ -23,7 +23,7 @@
 
 #define SERVER_PORT 1234
 #define MAX_CLIENTS get_max_clients()
-
+#define CAPACITY get_capacity()
 class connection {
     int sock;              //socket to use
     int connectionlist[1000];  //Array of connected sockets 
@@ -61,10 +61,12 @@ void run_connection(connection *c);
 struct databuf { 
     void *data;
     size_t capacity;
+    int sw_id;
+    int refcnt;
 };
 
-void init_buffer(int cap, databuf **d);
-void filldata(databuf *dbuf);
+void init_buffer(int cap, databuf **d,int sw_id);
+void filldata(databuf *dbuf,int sw_id);
 void distribute_data(void *arg);
 void free_buffer(databuf **d);
 void handle_results(int client_id, int *buffer, float *element);
