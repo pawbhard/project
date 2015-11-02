@@ -56,6 +56,7 @@ void filldata(databuf *dbuf, int sw_id) {
 //            t.submit(distribute_data,(void *) temp);
             for(int i = 0; i < NUM_OF_OPCODES; i++) {
                cs->insert_data(i, temp);
+               temp->refcnt++;
             }
         }
     }
@@ -63,7 +64,7 @@ void filldata(databuf *dbuf, int sw_id) {
 
 void free_buffer(databuf **d) {
     DEBUG("Buffer getting freed");
-    std::cout<<"\nBuffer freed \n";
+    std::cout<<"\nBuffer freed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<(*d)<<"\n";
     if((*d)!= NULL) {
         if((*d)->data != NULL) {
             free((*d)->data);
@@ -297,6 +298,5 @@ void distribute_new(int opcode, int group_id, databuf *d)
             arr = NULL;
         }
         DEBUG("Send complete");
-        d->refcnt++;
         task_id++;
 }
