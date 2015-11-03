@@ -56,9 +56,5 @@ syntax debug { enable|disable }
 handler handle_debug_toggle
 </cmd>
 
-<cmd>
-syntax debug level { all|alert|warning|notice|info|trace }
-handler handle_set_debug_level
-</cmd>
 
 

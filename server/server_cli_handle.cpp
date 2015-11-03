@@ -129,7 +129,3 @@ void handle_debug_toggle(cmd_params *params)
     }
 }
 
-void handle_set_debug_level(cmd_params *params) 
-{
-    /* TBD set debug level based on params->id */
-}
