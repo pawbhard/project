@@ -46,7 +46,7 @@ handler handle_show_results_switch_id
 </cmd>
 
 <cmd>
-syntax show results all
+syntax show results { all|history }
 handler handle_show_results
 </cmd>
 

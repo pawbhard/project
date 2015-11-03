@@ -84,13 +84,21 @@ void handle_show_server_status(cmd_params *params) {
 
 void handle_show_results(cmd_params *params) {
     Result *res = Result::get_instance();
-    for ( int i=0; i<CS; i++) {
-        cout <<"\nSwitch :"<<i<<endl;
-        cout << "\nMean :"<<res->get_mean(i) <<endl;
-        cout << "Mean elements :"<<res->get_mean_elements(i)<<endl;
-        float min=0, max=0;
-        res->get_range(min, max,i);
-        cout << "Range :: min: "<<min<<" max: "<<max<<endl;
+    if ( params ) {
+        if ( string(params->val) == "all") {
+            for ( int i=0; i<CS; i++) {
+                cout <<"\nSwitch :"<<i<<endl;
+                cout << "\nMean :"<<res->get_mean(i) <<endl;
+                cout << "Mean elements :"<<res->get_mean_elements(i)<<endl;
+                float min=0, max=0;
+                res->get_range(min, max,i);
+                cout << "Range :: min: "<<min<<" max: "<<max<<endl;
+            }   
+        } else if ( string(params->val) == "history") {
+            /* TBD add result history */
+            cout << "Last 5 results :"<<endl;
+            //res->show_history()<<endl;
+        }
     }
 }
 
