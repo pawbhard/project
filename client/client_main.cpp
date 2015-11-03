@@ -5,6 +5,13 @@
 
 int main(int argc, char *argv[])
 {
+    if(argc < 2) {
+      std::cout<<"Usage ./client_run <group>";
+      return 0;
+    }
+    int group_id;
+    group_id = atoi(argv[1]);
+    if(group_id >= 2 ) return 0;
     char buffer[1024];
     //Message format 
     int buf[3]; float *elements;
@@ -21,14 +28,13 @@ int main(int argc, char *argv[])
 
     //connect
     connect(sock, (struct sockaddr *) &address, sizeof(address));
-    int group_id;
     memset(buffer,0,sizeof(buffer));
     int rc = read(sock,buffer,1024);
     std::cout<<"received bytes "<<rc<<"\n";
     std::cout<<"Message Received : " << buffer<<"\n";
     memset(buffer,0,sizeof(buffer));
     std::cout<<"Enter Group to join ";
-    std::cin>>group_id;
+    //std::cin>>group_id;
     //send join request
     buf[0] = 0;
     buf[1] = group_id; //for MEAN
