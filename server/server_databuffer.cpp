@@ -51,7 +51,7 @@ void filldata(databuf *dbuf, int sw_id) {
             //buffer is full send this to some one and create new 
             databuf *temp = dbuf;
             dbuf = NULL;
-            init_buffer(temp->capacity, &dbuf,sw_id);
+            init_buffer(CAPACITY, &dbuf,sw_id);
             pos = 0;
 //            t.submit(distribute_data,(void *) temp);
             for(int i = 0; i < NUM_OF_OPCODES; i++) {
