@@ -84,18 +84,36 @@ void handle_show_server_status(cmd_params *params) {
 
 void handle_show_results(cmd_params *params) {
     Result *res = Result::get_instance();
-    cout << "\nMean :"<<res->get_mean() <<endl;
-    cout << "Mean elements :"<<res->get_mean_elements()<<endl;
-    float min=0, max=0;
-    res->get_range(min, max);
-    cout << "Range :: min: "<<min<<" max: "<<max<<endl;
+    for ( int i=0; i<CS; i++) {
+        cout <<"\nSwitch :"<<i<<endl;
+        cout << "\nMean :"<<res->get_mean(i) <<endl;
+        cout << "Mean elements :"<<res->get_mean_elements(i)<<endl;
+        float min=0, max=0;
+        res->get_range(min, max,i);
+        cout << "Range :: min: "<<min<<" max: "<<max<<endl;
+    }
+}
+
+void handle_show_results_switch_id(cmd_params *params) {
+    Result *res = Result::get_instance();
+    int switch_id = atoi(params->val);
+
+    if(params) {
+        cout << "\nSwitch :"<<switch_id<<endl; 
+        cout << "\nMean :"<<res->get_mean(switch_id)<<endl;
+        cout << "Mean elements :"<<res->get_mean_elements(switch_id) <<endl;
+        float min=0, max=0;
+        res->get_range(min, max,switch_id);
+        cout << "Range :: min: "<<min<<" max: "<<max<<endl;
+    }
+
 }
 
 
 void handle_debug_toggle(cmd_params *params)
 {
     if(params) {
-        if(params->id == 0) {
+        if(params->val == "enable") {
             /*TBD debug enable */
         } else {
             /*TBD debug disable */

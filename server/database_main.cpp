@@ -25,6 +25,7 @@ void DB::display_opcode_groups_all() {
             cout << *itt<<"\t";
         }
     }
+    cout<<endl;
 }
 
 void DB::display_opcode_groups(int opcode) {
@@ -50,7 +51,7 @@ void DB::display_opcode_groups(int opcode) {
     {
         cout << *itt<<"\t";
     }
-
+    cout << endl;
 }
 void DB::display_group_clients(int group) {
 
@@ -75,7 +76,7 @@ void DB::display_group_clients(int group) {
     {
         cout << *itt<<"\t";
     }
-
+    cout << endl;
 }
 
 void DB::display_group_clients_all() {
@@ -102,7 +103,7 @@ void DB::display_group_clients_all() {
             cout << *itt<<"\t";
         }
     }
-
+    cout << endl;
 }
 
 int DB::add_new_client( int client_id, int opcode) {

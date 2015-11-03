@@ -40,9 +40,13 @@ syntax show server status
 handler handle_show_server_status
 </cmd>
 
+<cmd>
+syntax show results switch-id <int>
+handler handle_show_results_switch_id
+</cmd>
 
 <cmd>
-syntax show results
+syntax show results all
 handler handle_show_results
 </cmd>
 
