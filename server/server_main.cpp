@@ -5,15 +5,13 @@
 #define CS 2
 
 void run_shell(void);
-
 connection* connection::cco = NULL;
 Result *Result::result = NULL;
 DB *DB::db = NULL;
 track_data *track_data::td = NULL;
 Consume *Consume::cs = NULL;
 
-int main() {
-    
+int main() { 
     std::vector<std::thread *> filpool;
     connection *conn = connection::get_instance() ;
     std::thread con(run_connection,conn);

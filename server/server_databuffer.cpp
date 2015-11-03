@@ -159,46 +159,6 @@ void distribute_data(void *arg)
         d->refcnt++;
         task_id++;
     }
-#if 0
-    //1. find no of clients 
-    //2. divide capacity and create limits 
-    //3. iterate and send data to clients 
-    //4. free databuf 
-
-    connection *c = connection::get_instance();
-    int no_of_clients = c->get_number_of_clients();
-    set<int> client_list = c->get_list();
-    if(client_list.size() == 0) {
-        DEBUG("No clients ignoring data");
-        free_buffer(&d);
-        return;
-    }
-    int size_data,put;
-    int *arr = NULL;
-    int *data = (int *) d->data;
-    int cap = d->capacity;
-    int per_client = ceil((float)cap/(float)no_of_clients);
-    set<int>::iterator it;
-    for(it = client_list.begin() ; it != client_list.end(); ++it)
-    {
-        if(cap <= 0) break;
-        size_data = cap > per_client ? per_client : cap;
-        arr = new int[size_data+1];//in first sending no of element
-        if(arr == NULL) {
-            std::cout<<"MAlloc failed";
-            exit(EXIT_FAILURE);
-        }
-        arr[0] = size_data;
-        memcpy(arr+1,data+(d->capacity - cap) , size_data*sizeof(int));
-        put = sock_puts(*it, (void *) arr, (size_data+1)*sizeof(int));
-        DEBUG("Sending %d data to %d",put,*it);
-        cap -= size_data;
-        free(arr);
-        arr = NULL;
-    }
-    DEBUG("Send complete");
-#endif
-    //free_buffer(&d);
 }
 
 void handle_timer(sigval s)
@@ -237,7 +197,7 @@ void distribute_new(int opcode, int group_id, databuf *d)
     // 4. construct and send data to client
     // 5. track data sent 
     // 6. start a timer for task_id
-    
+    DEBUG("Distribution Started for opcode %d and group id %d",opcode,group_id); 
     DB *db = DB::get_instance();
     track_data *td = track_data::get_instance();
 

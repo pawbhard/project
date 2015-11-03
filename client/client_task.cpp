@@ -12,7 +12,7 @@ int  cal_range(std::vector<float> vec, float *max,float *min) {
 //    sleep(1);
     return 1;
 }
-int cal_mean(std::vector<float> vec) {
+float cal_mean(std::vector<float> vec) {
     std::vector<float>::iterator it;
     float result = 0;
     for (it=vec.begin(); it<vec.end(); it++)

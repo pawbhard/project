@@ -1,15 +1,24 @@
 #include "server_header.h"
 #include "database_def.h"
-void handle_join(int client_id, int *buffer) {
+int handle_join(int client_id, int *buffer) {
     //buffer[0] == 0         Taskid should be 0 
     //buffer[1] == opcode    Task client want to register  
     //buffer[2] == 0         No element further //can be used for other signalling
     DEBUG("Handling new connection client_d %d opcode %d",client_id,buffer[1]);
     if(buffer[0] != 0 || buffer[2] != 0 ) assert(0);
     int opcode = buffer[1];
+    if(opcode >= NUM_OF_OPCODES || opcode < 0) {
+        DEBUG("Invalid opcode removing client");
+        char buf[] = "Invalid code ";
+        sock_puts(client_id, (void *)buf ,strlen(buf));                                                          
+        return FAILURE;
+    } else {
+        char buf[] = "Join Sucessful";
+        sock_puts(client_id, (void *)buf ,strlen(buf));
+    }
     DB *d = DB::get_instance();
     d->add_new_client(client_id,opcode);
-
+    return SUCCESS;
 }
 
 void handle_results(int client_id, int *buffer, float *elements) {

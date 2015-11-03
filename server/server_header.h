@@ -72,7 +72,7 @@ void filldata(databuf *dbuf,int sw_id);
 void distribute_data(void *arg);
 void free_buffer(databuf **d);
 void handle_results(int client_id, int *buffer, float *element);
-void handle_join(int client_id, int *buffer);
+int  handle_join(int client_id, int *buffer);
 void handle_timer(sigval);
 void distribute_new(int opcode, int grp_id, databuf *d);
 

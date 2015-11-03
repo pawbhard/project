@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     }
     int group_id;
     group_id = atoi(argv[1]);
-    if(group_id >= 2 ) return 0;
+    //if(group_id >= 2 ) return 0;
     char buffer[1024];
     //Message format 
     int buf[3]; float *elements;
@@ -39,10 +39,16 @@ int main(int argc, char *argv[])
     buf[0] = 0;
     buf[1] = group_id; //for MEAN
     buf[2] = 0;
-    std::cout<<"Joined group "<<group_id<<"\n";
+    //std::cout<<"Joined group "<<group_id<<"\n";
+    //
     //strcpy(buffer,"Mean");
     int wr = write(sock,buf,sizeof(buf));
     std::cout<<"Written bytes "<<wr<<"\n";
+    //Check if any reply is there 
+    memset(buffer,0,sizeof(buffer));
+    read(sock,buffer,sizeof(buffer));
+    std::cout<<"\n Message from Server : ";
+    printf("%s\n",buffer);
      //start receiver
     std::thread rec(receiver,sock);
     rec.join();

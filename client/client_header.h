@@ -24,7 +24,7 @@
 
 void receiver(int sock);
 void  task_perform(int sock, std::vector<float> vec, int task, int id);
-int  cal_mean(std::vector<float> vec);
+float  cal_mean(std::vector<float> vec);
 int  cal_range(std::vector<float> vec, float *max,float *min);
 
 

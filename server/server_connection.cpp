@@ -35,16 +35,8 @@ void connection::handle_new_connection() {
     int connection;  // fd for incoming connection
     connection = accept(sock,NULL,NULL);
     DEBUG("Handshake init");
-    char buf[100] = " Available : MEAN (100)  RANGE (200)  .. ";
+    char buf[100] = " Available : MEAN (0)  RANGE (1)  .. ";
    send(connection,buf,strlen(buf),0);
-   /* memset(buf,0,sizeof(buf));
-    read(connection,buf,100); */
-    DEBUG("Group joined : Mean");
-   /* if(connection < 0) {
-        ERROR("Accept failure");
-        exit(EXIT_FAILURE);
-    }
-    */
     //set connection non blocking
     setnonblocking(connection);
     for(list = 0; list < MAX_CLIENTS && connection != -1; list++) {
@@ -83,12 +75,10 @@ void connection::handle_data(int list) {
     } else  {
         memset(buffer_int,0,sizeof(buffer_int));
         memcpy(buffer_int,buffer,sizeof(buffer_int));
-        std::cout<<"Received : ";
-        std::cout<<buffer_int[0]<<" task_id \n"
-                 <<buffer_int[1]<<" opcode \n"
-                 <<buffer_int[2]<<" No of elements "
-                 <<"\n";
-        
+        char buf[128];
+        snprintf(buf,128,"TLV Received task_id [%d] opcode [%d] No of Elements [%d]",
+                    buffer_int[0],buffer_int[1],buffer_int[2]);
+       DEBUG("%s",buf); 
        //update
        if(buffer_int[0]) {
            float *element;
@@ -97,7 +87,12 @@ void connection::handle_data(int list) {
            memcpy(element, buffer+3*sizeof(int) ,sizeof(float)*buffer_int[2]); 
            handle_results(connectionlist[list],buffer_int, element);
        } else {
-           handle_join(connectionlist[list],buffer_int);
+           int retval = handle_join(connectionlist[list],buffer_int);
+           if(retval != SUCCESS) {
+               DEBUG("Join failed for Client");
+               connection_free[list] = true;
+               connectionlist[list] = 0;
+           }
        }
     }
 }
@@ -169,7 +164,6 @@ void run_connection(connection *c) {
 
         if(readsocks == 0) {
             //no new messages print .
-            //std::cout<<".";
             ;
         } else {
             c->read_socks();
@@ -183,7 +177,7 @@ int connection::get_number_of_clients() {
 std::set<int> connection::get_list() {
     std::set<int> clients;
     int list;
-    DEBUG("Getting list");
+    DEBUG("Getting list of connections");
     for(list = 0; list < MAX_CLIENTS ; list++) {
         if(connectionlist[list] != 0) {
             clients.insert(connectionlist[list]);

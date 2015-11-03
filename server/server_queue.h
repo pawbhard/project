@@ -1,6 +1,7 @@
 #ifndef _server_queue_h_
 #define _server_queue_h_
 using namespace std;
+#define QLIMIT 40 //Max queue size
 class Consume {
 
       mutex mt[NUM_OF_OPCODES];
