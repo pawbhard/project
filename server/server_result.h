@@ -14,8 +14,8 @@ class Result {
     float mean_final_hist[CS][HIST];
     float max_final_hist[CS][HIST];
     float min_final_hist[CS][HIST];
-    int mean_counter;   //for hist
-    int range_counter;  //for hist
+    int mean_counter[CS] = { 0 };   //for hist
+    int range_counter[CS] = { 0 };  //for hist
 
     std::mutex mut[CS];
     Result() { 
@@ -26,26 +26,24 @@ class Result {
         memset(max_final_hist,0,sizeof(max_final_hist));
         memset(min_final_hist,0,sizeof(min_final_hist));
         memset(mean_final_hist,0,sizeof(mean_final_hist));
-        range_counter = 0;
-        mean_counter  = 0;
     }
     static Result *result;
     Result( Result const&) {};
     Result& operator= (Result const&) {};
     void update_mean_hist(int sw,float val) {
-        mean_final_hist[sw][mean_counter] = val;
-        mean_counter++;
-        if(mean_counter == HIST) mean_counter = 0;
+        mean_final_hist[sw][mean_counter[sw]] = val;
+        mean_counter[sw]++;
+        if(mean_counter[sw] == HIST) mean_counter[sw] = 0;
     }
     void update_min_hist(int sw,float val) {
-        min_final_hist[sw][range_counter] = val;
-        range_counter++;
-        if(range_counter == HIST) range_counter = 0;
+        min_final_hist[sw][range_counter[sw]] = val;
+        range_counter[sw]++;
+        if(range_counter[sw] == HIST) range_counter[sw] = 0;
     }
     void update_max_hist(int sw,float val) {
-        max_final_hist[sw][range_counter] = val;
-        range_counter++;
-        if(range_counter == HIST) range_counter = 0;
+        max_final_hist[sw][range_counter[sw]] = val;
+        range_counter[sw]++;
+        if(range_counter[sw] == HIST) range_counter[sw] = 0;
     }
     public:
     static Result* get_instance() {
