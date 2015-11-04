@@ -17,7 +17,7 @@ class Result {
     int mean_counter;   //for hist
     int range_counter;  //for hist
 
-    std::mutex mut;
+    std::mutex mut[CS];
     Result() { 
         memset(mean_final,0,sizeof(mean_final));
         memset(mean_elements,0,sizeof(mean_elements));

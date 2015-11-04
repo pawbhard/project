@@ -41,8 +41,8 @@ void filldata(databuf *dbuf, int sw_id) {
     int pos = 0;
     while(1) {
         ar = (float *) dbuf->data;
-        //usleep(1000);
-        sleep(1);
+        usleep(100000);
+        //sleep(1);
         random_integer = uni(rng);
         //DEBUG("Got temprature from snmp %d",random_integer);
         ar[pos] = (float) random_integer;
@@ -123,7 +123,7 @@ void distribute_data(void *arg)
         td->set_group_task_map (task_id, group_id, arg);
 
         timer *t1;
-        t1 = new timer(task_id, 10, handle_timer);
+        t1 = new timer(task_id, 1, handle_timer);
         t1->start();
        
         for(it = client_list.begin() ; it != client_list.end(); ++it)

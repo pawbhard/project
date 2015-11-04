@@ -2,16 +2,20 @@
 #include "server_result.h"
 
 void Result::update_mean(int N, float res,int sw = 0) {
-    std::lock_guard<std::mutex> lk(mut);
+    std::unique_lock<std::mutex> lk(mut[sw],std::defer_lock);
+    lk.lock();
     float new_mean = (mean_final[sw] * mean_elements[sw] + N * res ) / ( N + mean_elements[sw]);
     mean_elements[sw] +=N;
     mean_final[sw] = new_mean;
+    lk.unlock();
     std::cout<<"\nUpdated mean with value "<<res<<"for swid "<<sw<<"\n";
 }
 void Result::update_range(float min_new, float max_new, int sw = 0) {
-    std::lock_guard<std::mutex> lk(mut);
+    std::unique_lock<std::mutex> lk(mut[sw],std::defer_lock);
+    lk.lock();
     if(min_final[sw] > min_new ) min_final[sw] = min_new;
     if(max_final[sw] < max_new) max_final[sw] = max_new;
+    lk.unlock();
     std::cout<<"\nUpdated Range for sw id "<<sw<<"\n";
 }
 void Result::print_history_mean() {
