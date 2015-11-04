@@ -2,6 +2,7 @@
 #include<mutex>
 #include<string.h>
 #include<limits.h>
+#include "server_logging.h"
 
 #define CS 2   //Switches no 
 #define HIST 10
@@ -35,11 +36,13 @@ class Result {
     Result( Result const&) {};
     Result& operator= (Result const&) {};
     void update_mean_hist(int sw,float val) {
+	DEBUG("Updating history for mean counter %d val %f ", mean_counter[sw],val);
         mean_final_hist[sw][mean_counter[sw]] = val;
         mean_counter[sw]++;
         if(mean_counter[sw] == HIST) mean_counter[sw] = 0;
     }
     void update_min_max_hist(int sw,float min, float max) {
+	DEBUG("Updating history for range counter %d val %f %f", range_counter[sw],min,max);
         min_final_hist[sw][range_counter[sw]] = min;
         max_final_hist[sw][range_counter[sw]] = max;
         range_counter[sw]++;

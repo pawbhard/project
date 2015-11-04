@@ -33,8 +33,8 @@ void Result::update_range(float min_new, float max_new, int sw = 0) {
 void Result::print_history_mean() {
     for (int sw = 0 ; sw < CS; sw++) {
         std::cout<<"\n Switch"<< sw <<" Mean history : ";
+        int t = mean_counter[sw];
         for(int j = 0 ; j < HIST ; j++) {
-            int t = mean_counter[sw];
             std::cout<<mean_final_hist[sw][t]<<" ";
             t++; 
             if(t == HIST) t = 0;
@@ -45,8 +45,8 @@ void Result::print_history_mean() {
 void Result::print_history_range() { 
     for (int sw = 0 ; sw < CS; sw++) {
         std::cout<<"\n Switch"<< sw <<" Range history : ";
+        int t = range_counter[sw];
         for(int j = 0 ; j < HIST ; j++) {
-            int t = range_counter[sw];
             std::cout<<"("<<min_final_hist[sw][t]<<", "<<max_final_hist[sw][t]<<") ";
             t++; 
             if(t == HIST) t = 0;

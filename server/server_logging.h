@@ -1,3 +1,5 @@
+#ifndef __server_logging_h_
+#define __server_logging_h_
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -22,3 +24,4 @@ static bool debug_enable = true ;
 
 void print_to_file(const char *fn, int lnum,const char *trace_buf);
 void debug_enable_disable(bool val); //true enable false disable
+#endif
