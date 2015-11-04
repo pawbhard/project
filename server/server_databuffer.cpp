@@ -1,3 +1,4 @@
+#include <mutex>
 #include "server_header.h"
 #include "threadpool.h"
 #include "database_def.h"
@@ -59,7 +60,10 @@ void filldata(int sw_id) {
     }
 }
 
+mutex free_lock;
+
 void free_buffer(databuf **d) {
+    free_lock.lock();
     DEBUG("Buffer getting freed %p",(*d));
     if((*d)!= NULL) {
         if((*d)->data != NULL) {
@@ -68,6 +72,7 @@ void free_buffer(databuf **d) {
         free(*d);
         *d = NULL;
         }
+    free_lock.unlock();
 }
 
 void distribute_data(void *arg)
