@@ -12,7 +12,7 @@ void init_buffer(int cap, databuf **d, int sw_id) {
     }
     (*d)->capacity = cap;
     (*d)->sw_id    = sw_id;
-    (*d)->refcnt = 0;
+    (*d)->refcnt = NUM_OF_OPCODES;
     (*d)->data = new int[cap];
     if((*d)->data == NULL) {
         std::cout<<"Malloc failed";
@@ -51,7 +51,6 @@ void filldata(databuf *dbuf, int sw_id) {
             pos = 0;
 //            t.submit(distribute_data,(void *) temp);
             for(int i = 0; i < NUM_OF_OPCODES; i++) {
-               temp->refcnt++;
                cs->insert_data(i, temp);
                DEBUG("inserting Data for Swid %d and opcode %d",sw_id, i); 
             }
