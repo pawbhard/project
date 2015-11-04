@@ -68,7 +68,7 @@ struct databuf {
 };
 
 void init_buffer(int cap, databuf **d,int sw_id);
-void filldata(databuf *dbuf,int sw_id);
+void filldata(int sw_id);
 void distribute_data(void *arg);
 void free_buffer(databuf **d);
 void handle_results(int client_id, int *buffer, float *element);

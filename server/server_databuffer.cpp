@@ -5,6 +5,7 @@
 using namespace std;
 static int task_id = 1;
 void init_buffer(int cap, databuf **d, int sw_id) {
+    DEBUG("CAlling for init for sw_id %d",sw_id);
     (*d) = new databuf;
     if(!*d) {
         std::cout<<"Malloc failed ";
@@ -20,8 +21,8 @@ void init_buffer(int cap, databuf **d, int sw_id) {
     }
 }
 
-void filldata(databuf *dbuf, int sw_id) {
-
+void filldata(int sw_id) {
+    databuf *dbuf;
     Consume *cs = Consume::get_instance();    
     cs->spawn();
     init_buffer(CAPACITY,&dbuf,sw_id);
@@ -52,7 +53,7 @@ void filldata(databuf *dbuf, int sw_id) {
 //            t.submit(distribute_data,(void *) temp);
             for(int i = 0; i < NUM_OF_OPCODES; i++) {
                cs->insert_data(i, temp);
-               DEBUG("inserting Data for Swid %d and opcode %d",sw_id, i); 
+               DEBUG("inserting Data for Swid %d and opcode %d buffer pointer %p",sw_id, i,temp); 
             }
         }
     }
@@ -117,7 +118,6 @@ void distribute_data(void *arg)
 
         // Storing mapping of task_id and group_id with buffer pointer
         td->set_group_task_map (task_id, group_id, arg);
-        d->refcnt++;
         timer *t1;
         t1 = new timer(task_id, 1, handle_timer);
         t1->start();
@@ -200,7 +200,7 @@ void distribute_new(int opcode, int group_id, databuf *d)
         if(client_list.size() == 0) {
             DEBUG("No clients free ignoring data for opcode %d",opcode);
             assert(0);
-            free_buffer(&d);
+            //free_buffer(&d);
             return;
         }
         db->set_state(group_id, false);
