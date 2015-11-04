@@ -25,6 +25,7 @@ float cal_mean(std::vector<float> vec) {
 void task_perform(int sock, std::vector<float> vec, int task,int id) {
     //perform task and send result back
     float min,max,result = 0;
+    sleep(1);
     switch (task) {
         case MEAN: result = cal_mean(vec);
                    break;

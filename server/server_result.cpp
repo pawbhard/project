@@ -1,5 +1,6 @@
 
 #include "server_result.h"
+#include "server_logging.h"
 
 void Result::update_mean(int N, float res,int sw = 0) {
     std::unique_lock<std::mutex> lk(mut[sw],std::defer_lock);
@@ -8,7 +9,8 @@ void Result::update_mean(int N, float res,int sw = 0) {
     mean_elements[sw] +=N;
     mean_final[sw] = new_mean;
     lk.unlock();
-    std::cout<<"\nUpdated mean with value "<<res<<"for swid "<<sw<<"\n";
+    DEBUG("Updated mean with value %f for switch id %d ",res,sw);
+    //std::cout<<"\nUpdated mean with value "<<res<<"for swid "<<sw<<"\n";
 }
 void Result::update_range(float min_new, float max_new, int sw = 0) {
     std::unique_lock<std::mutex> lk(mut[sw],std::defer_lock);
@@ -16,7 +18,8 @@ void Result::update_range(float min_new, float max_new, int sw = 0) {
     if(min_final[sw] > min_new ) min_final[sw] = min_new;
     if(max_final[sw] < max_new) max_final[sw] = max_new;
     lk.unlock();
-    std::cout<<"\nUpdated Range for sw id "<<sw<<"\n";
+    DEBUG("Updated Range with value %f,%f for switch id %d ",min_new,max_new,sw);
+    //std::cout<<"\nUpdated Range for sw id "<<sw<<"\n";
 }
 void Result::print_history_mean() {
     for (int sw = 0 ; sw < CS; sw++) {

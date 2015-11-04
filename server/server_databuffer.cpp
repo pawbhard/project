@@ -118,7 +118,7 @@ void distribute_data(void *arg)
 
         // Storing mapping of task_id and group_id with buffer pointer
         td->set_group_task_map (task_id, group_id, arg);
-
+        d->refcnt++;
         timer *t1;
         t1 = new timer(task_id, 1, handle_timer);
         t1->start();
@@ -152,7 +152,6 @@ void distribute_data(void *arg)
             arr = NULL;
         }
         DEBUG("Send complete");
-        d->refcnt++;
         task_id++;
     }
 }
