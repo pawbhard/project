@@ -51,16 +51,16 @@ void filldata(databuf *dbuf, int sw_id) {
             pos = 0;
 //            t.submit(distribute_data,(void *) temp);
             for(int i = 0; i < NUM_OF_OPCODES; i++) {
+               temp->refcnt++;
                cs->insert_data(i, temp);
                DEBUG("inserting Data for Swid %d and opcode %d",sw_id, i); 
-               temp->refcnt++;
             }
         }
     }
 }
 
 void free_buffer(databuf **d) {
-    DEBUG("Buffer getting freed");
+    DEBUG("Buffer getting freed %p",(*d));
     if((*d)!= NULL) {
         if((*d)->data != NULL) {
             free((*d)->data);
@@ -239,7 +239,7 @@ void distribute_new(int opcode, int group_id, databuf *d)
             td->set_track(task_id, *it, (d->capacity - cap), ((d->capacity - cap)+ size_data));
 
             //copy and send data 
-            memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(int));
+            memcpy(arr,data+(d->capacity - cap) , size_data*sizeof(float));
             //copy both 
             char buffer[1000]; //to send data
             memcpy(buffer,buf,sizeof(int)*3);

@@ -1,7 +1,7 @@
 #include "server_config.h"
 
 static unsigned int capacity = 100;
-static unsigned int max_clients = 50;
+static unsigned int max_clients = 2;
 
 void set_max_clients(unsigned int x) {
     max_clients = x;
