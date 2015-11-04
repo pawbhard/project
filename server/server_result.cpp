@@ -8,6 +8,7 @@ void Result::update_mean(int N, float res,int sw = 0) {
     float new_mean = (mean_final[sw] * mean_elements[sw] + N * res ) / ( N + mean_elements[sw]);
     mean_elements[sw] +=N;
     mean_final[sw] = new_mean;
+    update_mean_hist(sw,new_mean);
     lk.unlock();
     DEBUG("Updated mean with value %f for switch id %d ",res,sw);
     //std::cout<<"\nUpdated mean with value "<<res<<"for swid "<<sw<<"\n";
@@ -17,6 +18,8 @@ void Result::update_range(float min_new, float max_new, int sw = 0) {
     lk.lock();
     if(min_final[sw] > min_new ) min_final[sw] = min_new;
     if(max_final[sw] < max_new) max_final[sw] = max_new;
+    update_min_hist(sw,min_new);
+    update_max_hist(sw,max_new);
     lk.unlock();
     DEBUG("Updated Range with value %f,%f for switch id %d ",min_new,max_new,sw);
     //std::cout<<"\nUpdated Range for sw id "<<sw<<"\n";
