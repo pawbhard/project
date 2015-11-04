@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#define PROMPT "server#"
+#define PROMPT "server>>"
 
 typedef struct cmd_params_ {
     int id;
