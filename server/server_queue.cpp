@@ -12,6 +12,7 @@ void Consume::insert_data(int opcode, struct databuf *d) {
 	assert ((opcode < NUM_OF_OPCODES) && (opcode >= 0));
 	unique_lock<mutex> lk(mt[opcode]);
 	data[opcode].push(d);
+    DEBUG("Inserting %p for opcode %d",d,opcode);
 	cv[opcode].notify_all();
 }
 
@@ -27,9 +28,16 @@ struct databuf * Consume::pop_data(int opcode) {
 	assert ((opcode < NUM_OF_OPCODES) && (opcode >= 0));
 	if (data[opcode].size())
 	{
-		d = data[opcode].back();
+        DEBUG("Size of data_buf is %d", data[opcode].size());
+		d = data[opcode].front();
 		data[opcode].pop();
-	}
+        DEBUG("Size of data_buf after pop is %d", data[opcode].size());
+    }
+    else
+    {
+        assert(0);
+    }
+    DEBUG("Poping free data  %p for opcode  %d",d,opcode);
 	return d;
 }
 
@@ -38,10 +46,12 @@ int Consume::pop_free_grp(int opcode) {
 	assert ((opcode < NUM_OF_OPCODES) && (opcode >= 0));
 	if (free_grp[opcode].size())
 	{
-		free_g = free_grp[opcode].back();
+		free_g = free_grp[opcode].front();
 		free_grp[opcode].pop();
-	}
-    DEBUG("Poping free group  is %d",free_g);
+	} else {
+        assert(0);
+    }
+    DEBUG("Poping free group  for opcode  %d",opcode);
 	return free_g;
 }
 
@@ -51,6 +61,7 @@ void Consume::consume_data(int opcode) {
 		cv[opcode].wait(lk);
 		if ((data[opcode].size() == 0) || (free_grp[opcode].size() == 0))
 			continue;
+        DEBUG("Distributing for opcode %d",opcode);
 		distribute_new(opcode, pop_free_grp(opcode), pop_data(opcode));
 	}
 }

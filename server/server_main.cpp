@@ -15,10 +15,9 @@ int main() {
     std::vector<std::thread *> filpool;
     connection *conn = connection::get_instance() ;
     std::thread con(run_connection,conn);
-    databuf *d;
     
     for(int i = 0 ; i < CS ; i++) {
-        filpool.push_back(new std::thread(filldata,d,i)); //i is sw_id
+        filpool.push_back(new std::thread(filldata,i)); //i is sw_id
     }
     //std::thread fil(filldata,d);
     run_shell();
