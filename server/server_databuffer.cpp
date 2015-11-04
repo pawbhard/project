@@ -64,7 +64,6 @@ void filldata(databuf *dbuf, int sw_id) {
 
 void free_buffer(databuf **d) {
     DEBUG("Buffer getting freed");
-    std::cout<<"\nBuffer freed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<(*d)<<"\n";
     if((*d)!= NULL) {
         if((*d)->data != NULL) {
             free((*d)->data);

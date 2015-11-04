@@ -55,7 +55,6 @@ class timer {
 
              its.it_interval.tv_sec  = 0;
              its.it_interval.tv_nsec = 0;
-             cout<<"\nTimer id "<<timer_id<<"\n";
              timer_settime(timer_id, 0, &its, NULL);
         }
 };

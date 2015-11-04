@@ -121,10 +121,10 @@ void handle_show_results_switch_id(cmd_params *params) {
 void handle_debug_toggle(cmd_params *params)
 {
     if(params) {
-        if(params->val == "enable") {
-            /*TBD debug enable */
+        if(string(params->val) == "enable") {
+            debug_enable_disable(true);
         } else {
-            /*TBD debug disable */
+            debug_enable_disable(false);
         }
     }
 }
