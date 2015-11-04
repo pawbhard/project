@@ -95,9 +95,8 @@ void handle_show_results(cmd_params *params) {
                 cout << "Range :: min: "<<min<<" max: "<<max<<endl;
             }   
         } else if ( string(params->val) == "history") {
-            /* TBD add result history */
-            cout << "Last 5 results :"<<endl;
-            //res->show_history()<<endl;
+            res->print_history_mean();
+            res->print_history_range();
         }
     }
 }
@@ -116,7 +115,6 @@ void handle_show_results_switch_id(cmd_params *params) {
     }
 
 }
-
 
 void handle_debug_toggle(cmd_params *params)
 {
