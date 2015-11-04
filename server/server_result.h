@@ -39,13 +39,9 @@ class Result {
         mean_counter[sw]++;
         if(mean_counter[sw] == HIST) mean_counter[sw] = 0;
     }
-    void update_min_hist(int sw,float val) {
-        min_final_hist[sw][range_counter[sw]] = val;
-        range_counter[sw]++;
-        if(range_counter[sw] == HIST) range_counter[sw] = 0;
-    }
-    void update_max_hist(int sw,float val) {
-        max_final_hist[sw][range_counter[sw]] = val;
+    void update_min_max_hist(int sw,float min, float max) {
+        min_final_hist[sw][range_counter[sw]] = min;
+        max_final_hist[sw][range_counter[sw]] = max;
         range_counter[sw]++;
         if(range_counter[sw] == HIST) range_counter[sw] = 0;
     }

@@ -16,10 +16,16 @@ void Result::update_mean(int N, float res,int sw = 0) {
 void Result::update_range(float min_new, float max_new, int sw = 0) {
     std::unique_lock<std::mutex> lk(mut[sw],std::defer_lock);
     lk.lock();
-    if(min_final[sw] > min_new ) min_final[sw] = min_new;
-    if(max_final[sw] < max_new) max_final[sw] = max_new;
-    update_min_hist(sw,min_new);
-    update_max_hist(sw,max_new);
+    if(min_final[sw] > min_new ) 
+    {
+        min_final[sw] = min_new;
+    }
+    if(max_final[sw] < max_new)
+    {
+        max_final[sw] = max_new;
+    }
+
+    update_min_max_hist(sw, min_final[sw], max_final[sw]);
     lk.unlock();
     DEBUG("Updated Range with value %f,%f for switch id %d ",min_new,max_new,sw);
     //std::cout<<"\nUpdated Range for sw id "<<sw<<"\n";
