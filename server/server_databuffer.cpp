@@ -28,14 +28,7 @@ void filldata(databuf *dbuf, int sw_id) {
     //Create thread pool for distrubute 
 //    thread_pool t;
 
-    int random_integer,minn =  20,maxx = 70;
-    //For now generate random integer
-    std::random_device rd;     
-    // only used once to initialise (seed) engine
-    std::mt19937 rng(rd());    
-    // random-number engine used (Mersenne-Twister in this case)
-    std::uniform_int_distribution<int> uni(minn,maxx); 
-    // guaranteed unbiased
+    float r,LO =  20.0,HI = 50.0;
     DEBUG("In fill data capacity %d",dbuf->capacity);
     float *ar = (float *) dbuf->data;
     int pos = 0;
@@ -43,9 +36,12 @@ void filldata(databuf *dbuf, int sw_id) {
         ar = (float *) dbuf->data;
         usleep(100000);
         //sleep(1);
-        random_integer = uni(rng);
+        srand (static_cast <unsigned> (time(0))); 
+        r = LO + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(HI-LO)));
+
+
         //DEBUG("Got temprature from snmp %d",random_integer);
-        ar[pos] = (float) random_integer;
+        ar[pos] = r;
         pos++;
         if(pos == dbuf->capacity) {
             //buffer is full send this to some one and create new 
@@ -56,6 +52,7 @@ void filldata(databuf *dbuf, int sw_id) {
 //            t.submit(distribute_data,(void *) temp);
             for(int i = 0; i < NUM_OF_OPCODES; i++) {
                cs->insert_data(i, temp);
+               DEBUG("inserting Data for Swid %d and opcode %d",sw_id, i); 
                temp->refcnt++;
             }
         }

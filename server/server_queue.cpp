@@ -27,7 +27,7 @@ struct databuf * Consume::pop_data(int opcode) {
 	assert ((opcode < NUM_OF_OPCODES) && (opcode >= 0));
 	if (data[opcode].size())
 	{
-		d = data[opcode].front();
+		d = data[opcode].back();
 		data[opcode].pop();
 	}
 	return d;
@@ -38,7 +38,7 @@ int Consume::pop_free_grp(int opcode) {
 	assert ((opcode < NUM_OF_OPCODES) && (opcode >= 0));
 	if (free_grp[opcode].size())
 	{
-		free_g = free_grp[opcode].front();
+		free_g = free_grp[opcode].back();
 		free_grp[opcode].pop();
 	}
     DEBUG("Poping free group  is %d",free_g);

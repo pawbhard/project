@@ -36,7 +36,7 @@ void handle_results(int client_id, int *buffer, float *elements) {
     int sw_id = buffer[0] & 0x3;
     td->delete_track (task_id, client_id);
 
-    DEBUG("handling results %f %f",elements[0],elements[1]);
+    DEBUG("handling results Switch id %d %f %f",sw_id,elements[0],elements[1]);
     DB *db = DB::get_instance();
 //    db->set_state(1,true);
     int opcode = buffer[1];
