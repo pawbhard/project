@@ -15,7 +15,8 @@ int main() {
     std::vector<std::thread *> filpool;
     connection *conn = connection::get_instance() ;
     std::thread con(run_connection,conn);
-    
+    Consume *co = Consume::get_instance(); 
+    co->spawn();
     for(int i = 0 ; i < CS ; i++) {
         filpool.push_back(new std::thread(filldata,i)); //i is sw_id
     }

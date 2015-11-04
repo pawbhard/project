@@ -24,12 +24,10 @@ void init_buffer(int cap, databuf **d, int sw_id) {
 
 void filldata(int sw_id) {
     databuf *dbuf;
-    Consume *cs = Consume::get_instance();    
-    cs->spawn();
     init_buffer(CAPACITY,&dbuf,sw_id);
     //Create thread pool for distrubute 
 //    thread_pool t;
-
+    Consume *cs = Consume::get_instance();
     float r,LO =  20.0,HI = 50.0;
     DEBUG("In fill data capacity %d",dbuf->capacity);
     float *ar = (float *) dbuf->data;
