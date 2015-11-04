@@ -74,11 +74,15 @@ void handle_show_num_clients(cmd_params *params)
 }
 
 void handle_show_server_status(cmd_params *params) {
-    cout << "Server status : active "<<endl;
+    cout << "Server status : Active "<<endl;
     handle_get_capacity(NULL);
     handle_get_max_clients(NULL);
     handle_show_num_clients(NULL);
+    cout << "\nOpcode Groups :"<<endl;
+    cout << "================"<<endl;
     handle_show_opcode_groups(NULL);
+    cout << "\nGroup Clients :"<<endl;
+    cout << "================"<<endl;
     handle_show_group_clients(NULL);
 }
 

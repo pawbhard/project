@@ -13,6 +13,7 @@ void DB::display_opcode_groups_all() {
     for( it = opcode_to_group.begin(); it != opcode_to_group.end(); it++ )
     {
         cout << "\nOperation (opcode) : "<<it->first<<endl;
+        cout << "---------------------------"<<endl;
         set<int> group_list = it->second;
         set<int>::iterator itt;
         
@@ -24,6 +25,7 @@ void DB::display_opcode_groups_all() {
         {
             cout << *itt<<"\t";
         }
+        cout << "\n-------------------------"<<endl;
     }
     cout<<endl;
 }
@@ -42,9 +44,12 @@ void DB::display_opcode_groups(int opcode) {
         return;
     }
 
+    cout << "\nOpcode : "<<opcode<<endl;
+    cout << "--------------"<<endl;
+    
     set<int>::iterator itt;
     if( group_list.begin() != group_list.end() )
-        cout << "Groups : ";
+        cout << "Group IDs : ";
     else
         cout << "No groups in the opcode" <<endl;
     for ( itt = group_list.begin(); itt != group_list.end(); itt++ )
@@ -67,9 +72,12 @@ void DB::display_group_clients(int group) {
         return;
     }
 
+    cout << "\nGroup ID : "<<group<<endl;
+    cout << "------------------"<<endl;
+    
     set<int>::iterator itt;
     if( client_list.begin() != client_list.end() )
-        cout << "Clients : ";
+        cout << "Clients  : ";
     else
         cout << "No clients in the group" <<endl;
     for ( itt = client_list.begin(); itt != client_list.end(); itt++ )
@@ -87,21 +95,27 @@ void DB::display_group_clients_all() {
         cout << "No groups present"<<endl;
         return;
     }
-
+    cout << "\nGroup ID |      clients "<<endl;
+    cout << "--------------------------------------------------"<<endl;
     for( it = group_to_client.begin(); it != group_to_client.end(); it++ )
     {
-        cout << "\nGroup ID : "<<it->first<<endl;
+    //    cout << "\nGroup ID : "<<it->first<<endl;
+    //    cout << "------------------"<<endl;
+        if(it->first < 10)
+            cout << "00";
+        else if(it->first < 100)
+            cout << "0";
+        cout << it->first<<"\t\t";
         set<int> client_list = it->second;
         set<int>::iterator itt;
         
-        if( client_list.begin() != client_list.end() )
-            cout << "Clients : ";
-        else
+        if( client_list.begin() == client_list.end() )
             cout << "No clients in the group" <<endl;
         for ( itt = client_list.begin(); itt != client_list.end(); itt++ )
         {
             cout << *itt<<"\t";
         }
+        cout << endl;
     }
     cout << endl;
 }
