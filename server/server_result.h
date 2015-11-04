@@ -1,6 +1,8 @@
 #include<iostream>
 #include<mutex>
 #include<string.h>
+#include<limits.h>
+
 #define CS 2   //Switches no 
 #define HIST 10
 class Result {
@@ -22,6 +24,8 @@ class Result {
         memset(mean_final,0,sizeof(mean_final));
         memset(mean_elements,0,sizeof(mean_elements));
         memset(min_final,0,sizeof(min_final));
+        for( int i=0; i<CS; i++ )
+            min_final[i] = INT_MAX;
         memset(max_final,0,sizeof(max_final));
         memset(max_final_hist,0,sizeof(max_final_hist));
         memset(min_final_hist,0,sizeof(min_final_hist));
